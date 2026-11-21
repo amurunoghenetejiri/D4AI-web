@@ -26,7 +26,7 @@ import { isOnlineNow } from "@/lib/offline-sync";
 import { enqueueOutbox, listOutbox, removeOutbox, markOutboxFailed, markOutboxUploading, blobToDataUrlIfSmall, dataUrlToBlob, canRetry, subscribeOutbox, notifyOutbox } from "@/lib/message-outbox";
 import { joinMessagingPresence, ticksFor } from "@/lib/messaging-presence";
 import { uploadMessageMedia } from "@/lib/message-media";
-import { VoiceBubble, ImageBubble, ImageLightbox, VideoBubble, FileBubble, VideoLightbox, LongPressMenu, VoiceRecorderBar, lastSeenLabel, parseMediaUrls, attachmentLabel, parseOfficerReply, stopAllVoices } from "@/components/messaging/MessageMedia";
+import { VoiceBubble, ImageBubble, ImageLightbox, VideoBubble, FileBubble, VideoLightbox, LongPressMenu, VoiceRecorderBar, lastSeenLabel, parseMediaUrls, attachmentLabel, parseOfficerReply } from "@/components/messaging/MessageMedia";
 
 export const Route = createFileRoute("/student/contact-officer")({
   head: () => ({ meta: [{ title: "Messages — D4EXAM" }] }),
