@@ -1,0 +1,3 @@
+name: wire-named-notify
+on:
+  workflow_dispatch:

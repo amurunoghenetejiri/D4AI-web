@@ -1,0 +1,3 @@
+name: WRITE-MONITOR-FIXED
+on:
+  workflow_dispatch:

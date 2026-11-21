@@ -1,0 +1,41 @@
+name: Restore messaging.ts
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/restore-messaging-now.yml
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 30
+      - name: Restore from f941c3b and show all chats
+        run: |
+          set -e
+          git show f941c3bdf258b5413120ea43c25e056fbc3a50c2:src/lib/messaging.ts > src/lib/messaging.ts
+          python3 << 'PY'
+          from pathlib import Path
+          p = Path("src/lib/messaging.ts")
+          t = p.read_text()
+          assert not t.startswith("PLACEHOLDER"), "still placeholder"
+          old = """  // Show groups always; direct chats when they have a message, unread, or preview.\n  return mapped.filter(\n    (c) => c.isGroup || c.hasMessage || c.unread > 0 || Boolean(c.lastSenderId),\n  );\n}"""
+          new = """  // Show every conversation the user belongs to (groups + direct + officer).\n  return mapped;\n}"""
+          if old in t:
+              t = t.replace(old, new, 1)
+              p.write_text(t)
+              print("patched filter")
+          else:
+              print("filter already applied or different")
+          print("size", p.stat().st_size)
+          print(p.read_text()[:80])
+          PY
+      - name: Commit
+        run: |
+          git config user.name "d4exam-bot"
+          git config user.email "bot@d4exam.local"
+          git add src/lib/messaging.ts
+          if git diff --cached --quiet; then echo nochange; else git commit -m "fix: restore messaging.ts — list all recent chats (direct+group)" && git push; fi

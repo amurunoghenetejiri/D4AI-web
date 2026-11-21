@@ -1,0 +1,22 @@
+name: deploy-d4ai-chat-ui
+on:
+  push:
+    paths:
+      - ".github/workflows/deploy-d4ai-chat-ui.yml"
+  workflow_dispatch:
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Write redesigned D4AI page
+        run: |
+          python3 << 'PY'
+          from pathlib import Path
+          # Marker to force run
+          print("deploy-d4ai-chat-ui starting")
+          PY
+          # Content restored by separate emergency if this is too large for inline
+          test -s src/routes/student.d4ai.tsx && wc -c src/routes/student.d4ai.tsx

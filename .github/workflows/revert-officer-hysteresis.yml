@@ -1,0 +1,3 @@
+name: Revert officer hysteresis
+on:
+  workflow_dispatch:

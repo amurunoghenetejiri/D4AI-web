@@ -1,0 +1,55 @@
+{
+  "appId": "com.d4exam.app",
+  "appName": "D4EXAM",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https",
+    "cleartext": false,
+    "hostname": "localhost",
+    "errorPath": "index.html",
+    "allowNavigation": [
+      "*.supabase.co",
+      "*.googleapis.com",
+      "*.gstatic.com",
+      "*.firebaseio.com",
+      "*.firebasestorage.app",
+      "*.firebaseapp.com",
+      "localhost"
+    ]
+  },
+  "android": {
+    "allowMixedContent": false,
+    "backgroundColor": "#0b1b3a",
+    "webContentsDebuggingEnabled": false
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 0,
+      "launchAutoHide": false,
+      "backgroundColor": "#0b1b3a",
+      "androidSplashResourceName": "splash",
+      "androidScaleType": "CENTER",
+      "showSpinner": false,
+      "splashFullScreen": true,
+      "splashImmersive": true,
+      "launchFadeOutDuration": 250
+    },
+    "StatusBar": {
+      "style": "DARK",
+      "backgroundColor": "#0b1b3a",
+      "overlaysWebView": false
+    },
+    "PushNotifications": {
+      "presentationOptions": [
+        "badge",
+        "sound",
+        "alert"
+      ]
+    },
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_d4exam",
+      "iconColor": "#0b1b3a",
+      "sound": "default"
+    }
+  }
+}

@@ -1,0 +1,11 @@
+name: patch-d4ai-voice-inline
+on:
+  workflow_dispatch:
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply patch
+        run: |
+          echo PLACEHOLDER

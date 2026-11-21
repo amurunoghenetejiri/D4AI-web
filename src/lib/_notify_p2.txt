@@ -1,0 +1,198 @@
+export async function studentIdsToAuthUserIds(studentIds: string[]): Promise<string[]> {
+  if (!studentIds.length) return [];
+  try {
+    const { data: students } = await supabase
+      .from("students")
+      .select("id, profile_id, auth_user_id")
+      .in("id", studentIds);
+    const direct = (students ?? [])
+      .map((s) => (s as { auth_user_id?: string | null }).auth_user_id)
+      .filter(Boolean) as string[];
+    if (direct.length) return [...new Set(direct)];
+    const profileIds = [...new Set((students ?? []).map((s) => s.profile_id).filter(Boolean))] as string[];
+    if (!profileIds.length) return [];
+    const { data: profiles } = await supabase
+      .from("profiles")
+      .select("id, auth_user_id")
+      .in("id", profileIds);
+    return [...new Set((profiles ?? []).map((p) => (p as { auth_user_id?: string | null }).auth_user_id).filter(Boolean) as string[])];
+  } catch {
+    return [];
+  }
+}
+
+/** Resolve teacher auth user ids for a school. */
+export async function listTeacherUserIds(schoolId: string): Promise<string[]> {
+  try {
+    const { data: roles } = await supabase
+      .from("user_roles")
+      .select("user_id")
+      .eq("school_id", schoolId)
+      .eq("role", "teacher");
+    const fromRoles = [...new Set((roles ?? []).map((r) => (r as { user_id: string }).user_id).filter(Boolean))];
+    if (fromRoles.length) {
+      try {
+        const resolved = await resolveAuthUserIds(fromRoles, schoolId);
+        if (resolved.length) return resolved;
+      } catch { /* ignore */ }
+      return fromRoles;
+    }
+    const { data: teachers } = await supabase
+      .from("teachers")
+      .select("profile_id, auth_user_id")
+      .eq("school_id", schoolId);
+    const direct = (teachers ?? [])
+      .map((t) => (t as { auth_user_id?: string | null }).auth_user_id)
+      .filter(Boolean) as string[];
+    if (direct.length) return [...new Set(direct)];
+    const profileIds = [...new Set((teachers ?? []).map((t) => (t as { profile_id?: string | null }).profile_id).filter(Boolean))] as string[];
+    if (!profileIds.length) return [];
+    const { data: profiles } = await supabase.from("profiles").select("auth_user_id").in("id", profileIds);
+    return [...new Set((profiles ?? []).map((p) => (p as { auth_user_id?: string | null }).auth_user_id).filter(Boolean) as string[])];
+  } catch {
+    return [];
+  }
+}
+
+export async function notifyOfficersStudentResultPending(opts: {
+  schoolId: string;
+  examId: string;
+  examTitle: string;
+  studentName: string;
+}): Promise<void> {
+  try {
+    const officers = await listOfficerUserIds(opts.schoolId);
+    await notifyMany(
+      officers.map((uid) => ({
+        recipientUserId: uid,
+        schoolId: opts.schoolId,
+        title: "Result pending release",
+        message: `${opts.studentName} submitted “${opts.examTitle}”. Review and release when ready.`,
+        type: "result_pending_release",
+        link: "/officer/results",
+        entityType: "examination",
+        entityId: opts.examId,
+        dedupeMinutes: 30,
+      })),
+    );
+  } catch (e) {
+    console.warn("[notify] notifyOfficersStudentResultPending failed", e);
+  }
+}
+
+export async function notifyStudentResultPublished(opts: {
+  studentUserId: string;
+  schoolId?: string | null;
+  examId: string;
+  examTitle: string;
+}): Promise<void> {
+  try {
+    await notifyUser({
+      recipientUserId: opts.studentUserId,
+      schoolId: opts.schoolId,
+      title: "Result published",
+      message: `Your result for “${opts.examTitle}” is now available.`,
+      type: "result_published",
+      link: "/student/results",
+      entityType: "examination",
+      entityId: opts.examId,
+    });
+  } catch (e) {
+    console.warn("[notify] notifyStudentResultPublished failed", e);
+  }
+}
+
+export async function notifyStudentsResultsReleased(opts: {
+  schoolId: string;
+  examId: string;
+  examTitle: string;
+  studentAuthUserIds: string[];
+}): Promise<void> {
+  try {
+    await notifyMany(
+      opts.studentAuthUserIds.map((uid) => ({
+        recipientUserId: uid,
+        schoolId: opts.schoolId,
+        title: "Results released",
+        message: `Results for “${opts.examTitle}” have been released.`,
+        type: "result_published",
+        link: "/student/results",
+        entityType: "examination",
+        entityId: opts.examId,
+        dedupeMinutes: 30,
+      })),
+    );
+  } catch (e) {
+    console.warn("[notify] notifyStudentsResultsReleased failed", e);
+  }
+}
+
+export async function notifyStudentExamSubmitted(opts: {
+  studentUserId: string;
+  schoolId?: string | null;
+  examId: string;
+  examTitle: string;
+}): Promise<void> {
+  try {
+    await notifyUser({
+      recipientUserId: opts.studentUserId,
+      schoolId: opts.schoolId,
+      title: "Exam submitted",
+      message: `Your submission for “${opts.examTitle}” was received.`,
+      type: "exam_submitted",
+      link: "/student/results",
+      entityType: "examination",
+      entityId: opts.examId,
+    });
+  } catch (e) {
+    console.warn("[notify] notifyStudentExamSubmitted failed", e);
+  }
+}
+
+export async function notifyStudentOfficerWarning(opts: {
+  studentUserId: string;
+  schoolId?: string | null;
+  examId?: string | null;
+  message?: string | null;
+}): Promise<void> {
+  try {
+    await notifyUser({
+      recipientUserId: opts.studentUserId,
+      schoolId: opts.schoolId,
+      title: "Officer warning",
+      message: opts.message?.trim() || "An examination officer sent you a warning during your exam. Stay focused.",
+      type: "officer_warning",
+      link: "/student/examinations",
+      entityType: opts.examId ? "examination" : null,
+      entityId: opts.examId ?? null,
+    });
+  } catch (e) {
+    console.warn("[notify] notifyStudentOfficerWarning failed", e);
+  }
+}
+
+export async function notifyStudentsResultsHeld(opts: {
+  schoolId: string;
+  examId: string;
+  examTitle: string;
+  studentAuthUserIds: string[];
+}): Promise<void> {
+  try {
+    await notifyMany(
+      opts.studentAuthUserIds.map((uid) => ({
+        recipientUserId: uid,
+        schoolId: opts.schoolId,
+        title: "Results held",
+        message: `Results for “${opts.examTitle}” are held pending review.`,
+        type: "result_pending_release",
+        link: "/student/results",
+        entityType: "examination",
+        entityId: opts.examId,
+        dedupeMinutes: 30,
+      })),
+    );
+  } catch (e) {
+    console.warn("[notify] notifyStudentsResultsHeld failed", e);
+  }
+}
+

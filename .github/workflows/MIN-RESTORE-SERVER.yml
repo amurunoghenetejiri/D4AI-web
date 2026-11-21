@@ -1,0 +1,3 @@
+name: MIN-RESTORE-SERVER
+on:
+  workflow_dispatch:

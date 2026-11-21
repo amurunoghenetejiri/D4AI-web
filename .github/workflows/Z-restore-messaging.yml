@@ -1,0 +1,46 @@
+name: Z-restore-messaging
+on:
+  workflow_dispatch:
+  push:
+    paths: [".github/workflows/Z-restore-messaging.yml"]
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 40
+      - name: Patch self-chat only
+        run: |
+          set -e
+          python3 << 'PY'
+          from pathlib import Path
+          p = Path("src/lib/messaging.ts")
+          t = p.read_text(encoding="utf-8")
+          if "get_or_create_self_chat" in t and "rpc(\"get_or_create_self_chat\"" in t:
+              print("already patched")
+              raise SystemExit(0)
+          old = '''  if (!resolvedSchool) throw new Error("No school linked");
+  const { data: conv, error } = await supabase.from("conversations").insert({ school_id: resolvedSchool, type: "direct", title: "You", description: "Message yourself", created_by: userId, updated_at: new Date().toISOString() } as never).select("id").single();
+  if (error || !conv?.id) throw new Error(error?.message || "Could not create self chat");
+  await supabase.from("conversation_members").insert({ conversation_id: conv.id, user_id: userId, role: "owner" } as never);
+  return conv.id as string;'''
+          new = '''  // Prefer SECURITY DEFINER RPC (bypasses conversations RLS)
+  const { data: rpcId, error: rpcErr } = await supabase.rpc("get_or_create_self_chat", { p_school_id: resolvedSchool || null });
+  if (!rpcErr && rpcId) return rpcId as string;
+  throw new Error(rpcErr?.message || "Could not create self chat");'''
+          if old not in t:
+              raise SystemExit("pattern missing in messaging.ts")
+          p.write_text(t.replace(old, new, 1), encoding="utf-8")
+          print("patched messaging")
+          PY
+      - name: Commit
+        run: |
+          git config user.name "d4exam-bot"
+          git config user.email "bot@d4exam.local"
+          git add src/lib/messaging.ts
+          git status
+          git diff --cached --quiet || git commit -m "fix: Me self-chat uses SECURITY DEFINER RPC"
+          git push

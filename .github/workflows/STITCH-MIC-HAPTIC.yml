@@ -1,0 +1,3 @@
+name: STITCH-MIC-HAPTIC
+on:
+  workflow_dispatch:
