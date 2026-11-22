@@ -2019,9 +2019,9 @@ function D4AiPage() {
 
   const goBack = () => {
     try {
-      appNavigate(navigate, "/student");
+      appNavigate(navigate, "/student/d4ai");
     } catch {
-      navigate({ to: "/student" });
+      navigate({ to: "/student/d4ai" });
     }
   };
 

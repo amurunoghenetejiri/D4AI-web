@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, redirect, Link, redirect } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
@@ -41,6 +41,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export const Route = createFileRoute("/login")({
+  // D4EXAM-D4AI redirect: no login portal in this product
+  beforeLoad: () => {
+    throw redirect({ to: "/student/d4ai" as never });
+  },
+
   ssr: false,
   head: () => ({
     meta: [
