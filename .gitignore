@@ -46,3 +46,4 @@ android/app/*.iml
 
 # Capacitor web copy (generated)
 # Keep android/ in git so the project is complete for Android Studio
+d4web/
