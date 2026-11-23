@@ -199,16 +199,14 @@ const SILENCE_MS = 1200;
 type VoicePreset =
   | "ada"
   | "chidi"
-  | "amaka"
   | "tunde"
+  | "amaka"
   | "ngozi"
-  | "ebuka"
-  | "funke"
   | "kola"
-  | "zainab"
-  | "david"
-  | "sarah"
-  | "michael";
+  | "funke"
+  | "robo"
+  | "nova"
+  | "baritone";
 
 type VoiceChar = {
   id: VoicePreset;
@@ -224,19 +222,16 @@ type VoiceChar = {
 };
 
 const VOICE_CHARS: VoiceChar[] = [
-  // Two main voices first — Ada (female, faster), Chidi (male Nigerian)
-  { id: "ada", name: "Ada", title: "Main · Female", vibe: "Clear Nigerian female — default", emoji: "🎙️", file: "ceo_ref.wav", sample: "Hi, I'm Ada, your D4AI study companion. Let's learn together.", rate: 1.18, pitch: 1.12, seVoice: "Amy" },
-  { id: "chidi", name: "Chidi", title: "Main · Male", vibe: "Warm Nigerian male", emoji: "🎙️", file: "ceo_ref.wav", sample: "Hello, I'm Chidi. I'm here to help you study and succeed.", rate: 1.08, pitch: 0.92, seVoice: "Brian" },
-  { id: "amaka", name: "Amaka", title: "Female · Bright", vibe: "Friendly and bright", emoji: "😊", file: "lovelle_romantic_ref.wav", sample: "Hi, I'm Amaka. Ready when you are.", rate: 1.2, pitch: 1.15, seVoice: "Joanna" },
-  { id: "tunde", name: "Tunde", title: "Male · Deep", vibe: "Deep steady male", emoji: "🗣️", file: "titan_bass_ref.wav", sample: "I'm Tunde. Let's take this step by step.", rate: 1.05, pitch: 0.78, seVoice: "Matthew" },
-  { id: "ngozi", name: "Ngozi", title: "Female · Soft", vibe: "Soft calm female", emoji: "🌿", file: "whisper_soft_ref.wav", sample: "Hello, I'm Ngozi. I'll guide you gently.", rate: 1.12, pitch: 1.08, seVoice: "Emma" },
-  { id: "ebuka", name: "Ebuka", title: "Male · Clear", vibe: "Clear confident male", emoji: "📢", file: "baritone_deep_ref.wav", sample: "Ebuka here. Clear, calm, and focused.", rate: 1.1, pitch: 0.88, seVoice: "Joey" },
-  { id: "funke", name: "Funke", title: "Female · Energetic", vibe: "Upbeat female", emoji: "✨", file: "bubbly_cartoon_ref.wav", sample: "Hey! I'm Funke — let's make learning fun!", rate: 1.22, pitch: 1.2, seVoice: "Ivy" },
-  { id: "kola", name: "Kola", title: "Male · Firm", vibe: "Firm instructive male", emoji: "📘", file: "orion_wise_ref.wav", sample: "I'm Kola. Think carefully; you've got this.", rate: 1.06, pitch: 0.85, seVoice: "Matthew" },
-  { id: "zainab", name: "Zainab", title: "Female · Warm", vibe: "Warm supportive female", emoji: "💜", file: "bella_romance_ref.wav", sample: "Hi, I'm Zainab. We'll work through this together.", rate: 1.16, pitch: 1.1, seVoice: "Amy" },
-  { id: "david", name: "David", title: "Male · Neutral", vibe: "Neutral professional male", emoji: "💼", file: "cosmo_alien_ref.wav", sample: "David speaking. How can I help with your studies?", rate: 1.1, pitch: 0.95, seVoice: "Brian" },
-  { id: "sarah", name: "Sarah", title: "Female · Tutor", vibe: "Patient tutor female", emoji: "📚", file: "nova_alien_ref.wav", sample: "I'm Sarah, your tutor voice. Ask me anything.", rate: 1.15, pitch: 1.12, seVoice: "Joanna" },
-  { id: "michael", name: "Michael", title: "Male · Coach", vibe: "Encouraging male coach", emoji: "🏆", file: "astro_chill_ref.wav", sample: "Michael here. Let's push for your best result.", rate: 1.12, pitch: 0.9, seVoice: "Matthew" },
+  { id: "ada", name: "Ada", title: "Female · Clear", vibe: "Clear friendly female", emoji: "👩", file: "ceo_ref.wav", sample: "Hi, I'm Ada. Your clear and friendly study companion.", rate: 1.15, pitch: 1.12, seVoice: "Amy" },
+  { id: "chidi", name: "Chidi", title: "Male · Warm", vibe: "Warm natural male", emoji: "👨", file: "ceo_ref.wav", sample: "Hello, I'm Chidi. Warm, natural, and ready to help.", rate: 1.08, pitch: 0.92, seVoice: "Brian" },
+  { id: "tunde", name: "Tunde", title: "Male · Deep", vibe: "Deep bass male", emoji: "🗣️", file: "titan_bass_ref.wav", sample: "I'm Tunde. Deep voice, steady and strong.", rate: 0.98, pitch: 0.72, seVoice: "Matthew" },
+  { id: "amaka", name: "Amaka", title: "Female · Bright", vibe: "Bright energetic female", emoji: "✨", file: "lovelle_romantic_ref.wav", sample: "Hey! I'm Amaka — bright, upbeat, and ready to learn!", rate: 1.22, pitch: 1.18, seVoice: "Joanna" },
+  { id: "ngozi", name: "Ngozi", title: "Female · Soft", vibe: "Soft calm whisper-like", emoji: "🌿", file: "whisper_soft_ref.wav", sample: "Hello, I'm Ngozi. Soft, calm, and gentle.", rate: 1.05, pitch: 1.05, seVoice: "Emma" },
+  { id: "kola", name: "Kola", title: "Male · Firm", vibe: "Firm instructive male", emoji: "📘", file: "orion_wise_ref.wav", sample: "I'm Kola. Firm, clear, and focused on your success.", rate: 1.02, pitch: 0.85, seVoice: "Matthew" },
+  { id: "funke", name: "Funke", title: "Anime · Cute", vibe: "Anime-style high energy", emoji: "🎌", file: "bubbly_cartoon_ref.wav", sample: "Hi hi! I'm Funke — cute anime energy for studying!", rate: 1.28, pitch: 1.35, seVoice: "Ivy" },
+  { id: "robo", name: "Robo", title: "Robot · AI", vibe: "Robotic metallic", emoji: "🤖", file: "robo_metal_ref.wav", sample: "System online. I am Robo. Precision mode activated.", rate: 0.95, pitch: 0.7, seVoice: "Brian" },
+  { id: "nova", name: "Nova", title: "Alien · Sweet", vibe: "Sweet otherworldly", emoji: "👽", file: "nova_alien_ref.wav", sample: "Greetings. I am Nova, from beyond the stars.", rate: 1.1, pitch: 1.25, seVoice: "Joanna" },
+  { id: "baritone", name: "Baritone", title: "Male · Narrator", vibe: "Deep narrator baritone", emoji: "🎙️", file: "baritone_deep_ref.wav", sample: "I'm Baritone. A rich narrator voice for long sessions.", rate: 1.0, pitch: 0.75, seVoice: "Matthew" },
 ];
 
 function loadVoicePreset(): VoicePreset {
@@ -2595,42 +2590,106 @@ function D4AiPage() {
               <ArrowLeft className="h-5 w-5" />
             </button>
             <h2 className={cn("flex-1 text-lg font-bold", dark ? "text-white" : "text-slate-900")}>Settings</h2>
-            <MoreVertical className={cn("h-5 w-5", dark ? "text-white/70" : "text-slate-500")} />
           </header>
-          <div className="flex-1 space-y-4 overflow-y-auto px-4 py-4">
-            <div className={cn("flex items-center gap-3 rounded-2xl px-4 py-3", dark ? "bg-[#0e2038] ring-1 ring-cyan-400/15" : "bg-white ring-1 ring-slate-200 shadow-sm")}>
-              <D4Avatar size={44} />
-              <div>
+          <div className="flex-1 space-y-5 overflow-y-auto px-4 py-4">
+            {/* Profile card */}
+            <div className={cn("flex items-center gap-3 rounded-2xl px-4 py-3.5", dark ? "bg-[#0e2038] ring-1 ring-cyan-400/15" : "bg-white ring-1 ring-slate-200 shadow-sm")}>
+              <D4Avatar size={48} />
+              <div className="min-w-0 flex-1">
                 <p className={cn("text-base font-bold", dark ? "text-white" : "text-slate-900")}>D4AI</p>
-                <p className="text-[11px] text-cyan-300/90">v5-Ultimate</p>
+                <p className="text-[11px] text-cyan-300/90">Your personal AI assistant</p>
               </div>
             </div>
-            <div className={cn("overflow-hidden rounded-2xl", dark ? "bg-[#0e2038] ring-1 ring-cyan-400/15" : "bg-white ring-1 ring-slate-200 shadow-sm")}>
-              {[
-                { icon: theme === "dark" ? Moon : Sun, label: "Appearance", value: theme === "dark" ? "Dark Mode" : "Light Mode", action: toggleTheme },
-                { icon: Globe, label: "Language", value: "English", action: () => setToast("Language: English") },
-                { icon: Mic, label: "Voice Settings", value: autoSpeak ? "TTS & STT · On" : "TTS & STT", action: toggleAutoSpeak },
-                { icon: Cpu, label: "Model Settings", value: "Llama 3.1 8B / LLaVA 7B", action: () => setToast("Model: D4AI v5-Ultimate") },
-                { icon: Bell, label: "Notifications", value: "On", action: () => { setSettingsOpen(false); try { appNavigate(navigate, "/student/notifications"); } catch { navigate({ to: "/student/notifications" }); } } },
-                { icon: Shield, label: "Privacy & Security", value: "", action: () => { setSettingsOpen(false); try { appNavigate(navigate, "/privacy"); } catch { navigate({ to: "/privacy" }); } } },
-              ].map((row, i) => (
+
+            {/* Preferences */}
+            <div>
+              <p className={cn("mb-2 px-1 text-[11px] font-semibold uppercase tracking-wider", dark ? "text-slate-400" : "text-slate-500")}>Preferences</p>
+              <div className={cn("overflow-hidden rounded-2xl", dark ? "bg-[#0e2038] ring-1 ring-cyan-400/15" : "bg-white ring-1 ring-slate-200 shadow-sm")}>
+                {[
+                  { icon: theme === "dark" ? Moon : Sun, label: "Appearance", value: theme === "dark" ? "Dark" : "Light", action: toggleTheme },
+                  { icon: Volume2, label: "Auto-speak replies", value: autoSpeak ? "On" : "Off", action: toggleAutoSpeak },
+                  { icon: Globe, label: "Language", value: "English", action: () => setToast("Language: English") },
+                ].map((row, i) => (
+                  <button
+                    key={row.label}
+                    type="button"
+                    onClick={row.action}
+                    className={cn(
+                      "flex w-full items-center gap-3 px-4 py-3.5 text-left transition",
+                      i > 0 && (dark ? "border-t border-white/5" : "border-t border-slate-100"),
+                      dark ? "hover:bg-white/5" : "hover:bg-slate-50",
+                    )}
+                  >
+                    <span className={cn("flex h-9 w-9 items-center justify-center rounded-xl", dark ? "bg-cyan-500/15" : "bg-cyan-50")}>
+                      <row.icon className="h-[18px] w-[18px] text-cyan-400" />
+                    </span>
+                    <span className={cn("flex-1 text-sm font-medium", dark ? "text-white" : "text-slate-900")}>{row.label}</span>
+                    <span className="text-xs text-slate-400">{row.value}</span>
+                    <ChevronRight className="h-4 w-4 text-slate-500" />
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Voice picker */}
+            <div>
+              <div className="mb-2 flex items-center justify-between px-1">
+                <p className={cn("text-[11px] font-semibold uppercase tracking-wider", dark ? "text-slate-400" : "text-slate-500")}>Voice</p>
+                <p className="text-[11px] text-cyan-400">Tap to preview · select to use</p>
+              </div>
+              <div className="grid grid-cols-2 gap-2.5">
+                {VOICE_CHARS.map((c) => {
+                  const active = voicePreset === c.id;
+                  return (
+                    <button
+                      key={c.id}
+                      type="button"
+                      onClick={() => {
+                        setVoicePreset(c.id);
+                        try { localStorage.setItem(VOICE_KEY, c.id); } catch { /* */ }
+                        void speakText(c.sample, { preset: c.id });
+                      }}
+                      className={cn(
+                        "flex flex-col items-start gap-1 rounded-2xl border px-3 py-3 text-left transition",
+                        active
+                          ? "border-cyan-400/60 bg-cyan-500/15 ring-1 ring-cyan-400/40"
+                          : dark
+                            ? "border-white/10 bg-white/5 hover:bg-white/10"
+                            : "border-slate-200 bg-white hover:bg-slate-50",
+                      )}
+                    >
+                      <div className="flex w-full items-center gap-2">
+                        <span className="text-xl">{c.emoji}</span>
+                        <span className={cn("flex-1 text-sm font-bold", dark ? "text-white" : "text-slate-900")}>{c.name}</span>
+                        {active ? <span className="rounded-full bg-cyan-500/20 px-1.5 py-0.5 text-[9px] font-semibold text-cyan-300">Active</span> : null}
+                      </div>
+                      <span className="text-[10px] text-slate-400">{c.title}</span>
+                      <span className={cn("text-[10px] leading-snug", dark ? "text-slate-500" : "text-slate-400")}>{c.vibe}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* About / legal */}
+            <div>
+              <p className={cn("mb-2 px-1 text-[11px] font-semibold uppercase tracking-wider", dark ? "text-slate-400" : "text-slate-500")}>About</p>
+              <div className={cn("overflow-hidden rounded-2xl", dark ? "bg-[#0e2038] ring-1 ring-cyan-400/15" : "bg-white ring-1 ring-slate-200 shadow-sm")}>
                 <button
-                  key={row.label}
                   type="button"
-                  onClick={row.action}
-                  className={cn(
-                    "flex w-full items-center gap-3 px-4 py-3.5 text-left",
-                    i > 0 && (dark ? "border-t border-white/5" : "border-t border-slate-100"),
-                  )}
+                  onClick={() => { setSettingsOpen(false); try { appNavigate(navigate, "/privacy"); } catch { navigate({ to: "/privacy" }); } }}
+                  className={cn("flex w-full items-center gap-3 px-4 py-3.5 text-left", dark ? "hover:bg-white/5" : "hover:bg-slate-50")}
                 >
-                  <row.icon className="h-4.5 w-4.5 h-[18px] w-[18px] text-cyan-300" />
-                  <span className={cn("flex-1 text-sm font-medium", dark ? "text-white" : "text-slate-900")}>{row.label}</span>
-                  {row.value ? <span className="text-xs text-slate-400">{row.value}</span> : null}
+                  <span className={cn("flex h-9 w-9 items-center justify-center rounded-xl", dark ? "bg-cyan-500/15" : "bg-cyan-50")}>
+                    <Shield className="h-[18px] w-[18px] text-cyan-400" />
+                  </span>
+                  <span className={cn("flex-1 text-sm font-medium", dark ? "text-white" : "text-slate-900")}>Privacy & Security</span>
                   <ChevronRight className="h-4 w-4 text-slate-500" />
                 </button>
-              ))}
+              </div>
             </div>
-            <p className="pb-4 text-center text-[11px] text-slate-500">D4AI · D4TECH</p>
+
+            <p className="pb-6 text-center text-[11px] text-slate-500">D4AI · D4TECH · Creating Solutions</p>
           </div>
         </div>
       ) : null}
