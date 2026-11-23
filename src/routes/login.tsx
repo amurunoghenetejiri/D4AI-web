@@ -41,43 +41,18 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export const Route = createFileRoute("/login")({
-  // D4EXAM-D4AI redirect: no login portal in this product
+  ssr: false,
+  // Public D4AI site — never show D4EXAM login
   beforeLoad: () => {
     throw redirect({ to: "/student/d4ai" as never });
   },
-
-  ssr: false,
   head: () => ({
     meta: [
-      { title: "Sign in — D4EXAM" },
-      { name: "description", content: "Sign in to your D4EXAM school account." },
-    ],
-    links: [
-      { rel: "canonical", href: "https://d4exam.name.ng/login" },
+      { title: "D4AI" },
+      { name: "description", content: "D4AI — your personal AI assistant." },
     ],
   }),
-  beforeLoad: async () => {
-    try {
-      if (typeof window !== "undefined") {
-        const q = new URLSearchParams(window.location.search);
-        if (q.get("addAccount") === "1" || q.get("switch") === "1") return;
-      }
-    } catch {
-      /* ignore */
-    }
-    try {
-      const user = await Promise.race([
-        fetchSessionUser(),
-        new Promise<null>((resolve) => setTimeout(() => resolve(null), 2_000)),
-      ]);
-      if (user?.role && user.role in roleHome) {
-        throw redirect({ to: roleHome[user.role] as never });
-      }
-    } catch (e) {
-      if (e && typeof e === "object" && "to" in e) throw e;
-    }
-  },
-  component: LoginPage,
+  component: () => null,
 });
 
 const features = [

@@ -1,12 +1,12 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
-/** D4EXAM-D4AI: always open D4AI only — no marketing, no login, no other portals. */
+/** Public D4AI site — land on chat only. */
 export const Route = createFileRoute("/")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "D4AI — D4EXAM" },
-      { name: "description", content: "D4AI study companion" },
+      { title: "D4AI" },
+      { name: "description", content: "D4AI — your personal AI assistant." },
       { name: "theme-color", content: "#0b1a3a" },
     ],
   }),

@@ -52,12 +52,10 @@ function NativeBootstrap() {
     rememberLastPath(pathForPersist, session?.role ?? roleFromPath(pathForPersist));
   }, [pathForPersist, session?.role]);
   useEffect(() => {
+    // D4AI-only product: never route into school portals from /
     if (pathForPersist !== "/") return;
-    const role = (readLastRole() || readPreferredRole() || session?.role) as AppRole | null;
-    if (role && roleHome[role]) {
-      void router.navigate({ to: roleHome[role] as never, replace: true });
-    }
-  }, [pathForPersist, session?.role, router]);
+    void router.navigate({ to: "/student/d4ai" as never, replace: true });
+  }, [pathForPersist, router]);
   useEffect(() => {
     if (!isNativeShell()) return;
     let cancelled = false;

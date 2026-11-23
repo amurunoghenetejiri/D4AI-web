@@ -61,10 +61,10 @@ export const Route = createFileRoute("/student/d4ai")({
   }),
   head: () => ({
     meta: [
-      { title: "D4AI — D4TECH" },
-      { name: "description", content: "D4AI — your study companion and all-round AI assistant on D4EXAM." },
+      { title: "D4AI" },
+      { name: "description", content: "D4AI — your personal AI assistant." },
       { property: "og:title", content: "D4AI — D4TECH" },
-      { property: "og:description", content: "Chat, speak, and learn with D4AI on D4EXAM." },
+      { property: "og:description", content: "Chat, speak, and learn with D4AI." },
       { property: "og:type", content: "website" },
       { name: "theme-color", content: "#0b1a3a" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
@@ -95,7 +95,7 @@ const THEME_KEY = "d4ai_theme_v1";
 const SPEAK_KEY = "d4ai_autospeak_v1";
 const LOGO = "/d4ai-avatar.png";
 const WELCOME_TEXT =
-  "Hey! 👋 I'm D4AI — your AI buddy on D4EXAM.\n\nI'm here anytime you need help: study, code, ideas, or just figuring something out. Talk to me like a friend.\n\nIntroduce yourself and ask me anything — what's on your mind?";
+  "Hey! 👋 I'm D4AI — your personal AI assistant.\n\nI'm here anytime you need help: study, code, ideas, or just figuring something out. Talk to me like a friend.\n\nAsk me anything — what's on your mind?";
 const WELCOME: Msg = { id: "welcome", role: "assistant", content: WELCOME_TEXT };
 const NICK_KEY = "d4ai_nickname_v1";
 
@@ -1174,12 +1174,8 @@ function D4AiPage() {
     // Already typed this chat
     if (welcomeTypedForRef.current === activeId && welcomeDone) return;
 
-    const rawName = String(session?.fullName || nickname || "").trim();
-    const parts = rawName.split(/\s+/).filter(Boolean);
-    const two = parts.slice(0, 2).join(" ");
-    const full = two
-      ? `Hi ${two}! 👋\n\nI'm D4AI — your study companion and AI buddy on D4EXAM.\n\nAsk me anything: lessons, code, research, or ideas. I'm right here with you.`
-      : `Hi there! 👋\n\nI'm D4AI — your study companion and AI buddy on D4EXAM.\n\nAsk me anything: lessons, code, research, or ideas. I'm right here with you.`;
+    const full =
+      "Hey! 👋 I'm D4AI — your personal AI assistant.\n\nI'm here anytime you need help: study, code, ideas, or just figuring something out. Talk to me like a friend.\n\nAsk me anything — what's on your mind?";
 
     let i = 0;
     let cancelled = false;
@@ -1474,8 +1470,8 @@ function D4AiPage() {
         if (identityQ) {
           full =
             /who (made|created) you|who is your (ceo|creator|founder)/i.test(userText)
-              ? "I'm **D4AI** by **D4TECH** — your study companion. Creating solutions, innovating lives."
-              : "I'm **D4AI** — your AI assistant on D4EXAM by D4TECH. I help with study, code, and questions. What do you need?";
+              ? "I'm **D4AI** by **D4TECH** — your personal AI assistant. Creating solutions, innovating lives."
+              : "I'm **D4AI** — your personal AI assistant. I help with study, code, ideas, and everyday questions. What do you need?";
         } else {
           const ac = new AbortController();
           const to = window.setTimeout(() => ac.abort(), 90000);
