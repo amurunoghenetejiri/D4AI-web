@@ -1,3 +1,5 @@
+// Root settings — for opening the whole repo.
+// For Code Assist / Android Studio: open the android/ folder instead.
 pluginManagement {
     repositories {
         google()
