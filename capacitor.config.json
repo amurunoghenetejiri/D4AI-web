@@ -1,6 +1,6 @@
 {
-  "appId": "com.d4exam.app",
-  "appName": "D4EXAM",
+  "appId": "com.d4ai",
+  "appName": "D4AI",
   "webDir": "dist",
   "server": {
     "androidScheme": "https",

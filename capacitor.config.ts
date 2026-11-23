@@ -1,18 +1,18 @@
 import type { CapacitorConfig } from "@capacitor/cli";
 
 /**
- * D4EXAM Capacitor Android — standalone APK (local bundled assets).
+ * D4AI Capacitor Android — standalone APK (local bundled assets).
  *
  * Production runtime:
  *   APK → native splash → dist/ (webDir) → Capacitor bridge → native plugins → Supabase online
  *
  * Offline-first: bundled dist/ in the APK (no server.url by default).
- * Website (Vercel) unchanged. Optional hybrid: D4EXAM_LIVE_UI=1 force-local-capacitor-assets.py
+ * Website (Vercel) unchanged. Optional hybrid: D4AI_LIVE_UI=1 force-local-capacitor-assets.py
  * Native plugins: fingerprint, notifications, camera, screen share.
  */
 const config: CapacitorConfig = {
-  appId: "com.d4exam.app",
-  appName: "D4EXAM",
+  appId: "com.d4ai",
+  appName: "D4AI",
   webDir: "dist",
   server: {
     androidScheme: "https",

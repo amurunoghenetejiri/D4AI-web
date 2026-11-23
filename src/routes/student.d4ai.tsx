@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { D4AiSplash } from "@/components/splash/D4AiSplash";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   ArrowLeft,
@@ -981,6 +982,8 @@ const GLOBAL_CSS = `
 `;
 
 function D4AiPage() {
+  const [showSplash, setShowSplash] = useState(true);
+
   const navigate = useNavigate();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -2388,7 +2391,7 @@ function D4AiPage() {
       }}
     >
       <style>{GLOBAL_CSS}</style>
-
+      {showSplash ? <D4AiSplash onDone={() => setShowSplash(false)} /> : null}
 
       {/* Scroll to latest message */}
       {tab === "chat" && !voiceOn && !nearBottom ? (

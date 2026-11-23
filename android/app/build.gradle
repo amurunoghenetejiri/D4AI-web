@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace "com.d4exam.app"
+    namespace "com.d4ai"
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.d4exam.app"
+        applicationId "com.d4ai"
         minSdk 24
         targetSdk 34
         versionCode 2

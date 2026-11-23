@@ -1,37 +1,22 @@
-# D4EXAM-D4AI
+# D4AI
 
-Standalone **D4AI** app (from D4EXAM). Home opens only the D4AI page.
+Standalone personal AI assistant (web + Android).
 
-## Live
+- **Web:** D4AI chat only — no school login portal
+- **Android package:** `com.d4ai`
+- **Logo / favicon:** D4AI robot mark
 
-After Vercel is connected: **https://d4-exam-d4-ai.vercel.app**
-
-## Deploy
-
-See [DEPLOY_VERCEL.md](./DEPLOY_VERCEL.md) — connect GitHub repo `D4EXAM-D4AI`, copy Supabase env from `d4exam-web`, redeploy.
-
-## Local
-
+## Dev
 ```bash
 npm install
 npm run dev
 ```
 
-# D4EXAM-D4AI
-
-Standalone **D4AI** experience extracted from D4EXAM.
-
-- Single main UI: `/student/d4ai` (home `/` redirects here)
-- Same React / TanStack / Supabase / Vercel stack as d4exam-web
-- No multi-role dashboards required to use D4AI
-
-## Dev
-
-```bash
-bun install
-bun run dev
-```
-
 ## Deploy
+Vercel project linked to this repo. Env: Supabase keys (same as D4EXAM if you share a project) optional for pure chat via `/api/d4ai/*`.
 
-Connect this repo to Vercel. Suggested production domain: `d4exam-d4ai.vercel.app`
+## Routes kept
+- `/` → redirects to `/student/d4ai`
+- `/login` → redirects to `/student/d4ai`
+- `/student/d4ai` — main app
+- `/api/d4ai/*` — chat, stream, tts, voice, live
