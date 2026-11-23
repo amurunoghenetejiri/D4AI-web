@@ -1,104 +1,130 @@
 /**
- * D4AI long-term memory: chat history + user facts.
- * Uses localStorage (web + WebView). Survives app restarts on the same device.
+ * D4AI local memory — extracts and stores user facts across sessions.
+ * Stored in localStorage. Prepended to chat context so the model remembers you.
  */
 
-export type UserFact = { key: string; value: string; updatedAt: number };
+const MEMORY_KEY = "d4ai_user_memory_v1";
+const PROFILE_KEY = "d4ai_profile_v1";
 
-const FACTS_KEY = "d4ai_user_facts_v1";
-const PROFILE_KEY = "d4ai_user_profile_v1";
-
-export type UserProfile = {
-  displayName?: string;
-  notes?: string;
-  updatedAt?: number;
+export type UserFact = {
+  key: string;
+  value: string;
+  updatedAt: number;
 };
 
-export function loadUserFacts(): UserFact[] {
+export type UserMemory = {
+  facts: UserFact[];
+  displayName?: string;
+  school?: string;
+  location?: string;
+  likes?: string[];
+  notes?: string[];
+};
+
+function safeParse<T>(raw: string | null, fallback: T): T {
+  if (!raw) return fallback;
   try {
-    const raw = localStorage.getItem(FACTS_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as UserFact[];
-    return Array.isArray(parsed) ? parsed.slice(0, 80) : [];
+    return JSON.parse(raw) as T;
   } catch {
-    return [];
+    return fallback;
   }
 }
 
-export function saveUserFacts(facts: UserFact[]) {
+export function loadMemory(): UserMemory {
+  if (typeof window === "undefined") return { facts: [] };
+  return safeParse(localStorage.getItem(MEMORY_KEY), { facts: [] });
+}
+
+export function saveMemory(mem: UserMemory): void {
+  if (typeof window === "undefined") return;
   try {
-    localStorage.setItem(FACTS_KEY, JSON.stringify(facts.slice(0, 80)));
+    localStorage.setItem(MEMORY_KEY, JSON.stringify(mem));
   } catch {
     /* quota */
   }
 }
 
-export function upsertFact(key: string, value: string) {
-  const k = key.trim().toLowerCase().slice(0, 40);
-  const v = value.trim().slice(0, 200);
-  if (!k || !v) return;
-  const list = loadUserFacts().filter((f) => f.key !== k);
-  list.unshift({ key: k, value: v, updatedAt: Date.now() });
-  saveUserFacts(list);
+export function loadProfile(): { displayName?: string } {
+  if (typeof window === "undefined") return {};
+  return safeParse(localStorage.getItem(PROFILE_KEY), {});
 }
 
-export function loadProfile(): UserProfile {
+export function saveProfile(p: { displayName?: string }): void {
+  if (typeof window === "undefined") return;
   try {
-    const raw = localStorage.getItem(PROFILE_KEY);
-    if (!raw) return {};
-    return JSON.parse(raw) as UserProfile;
-  } catch {
-    return {};
-  }
-}
-
-export function saveProfile(p: UserProfile) {
-  try {
-    localStorage.setItem(PROFILE_KEY, JSON.stringify({ ...p, updatedAt: Date.now() }));
+    localStorage.setItem(PROFILE_KEY, JSON.stringify(p));
   } catch {
     /* ignore */
   }
 }
 
-/** Extract memorable facts from a user message. */
-export function extractFactsFromMessage(text: string): void {
-  const t = String(text || "").trim();
-  if (!t || t.length > 280) return;
+/** Extract simple facts from a user message and merge into memory. */
+export function extractFactsFromMessage(text: string): UserMemory {
+  const mem = loadMemory();
+  const lower = text.toLowerCase().trim();
+  const now = Date.now();
 
-  const name =
-    t.match(/\b(?:my name is|i'm|i am|call me)\s+([A-Za-z][A-Za-z0-9' -]{1,30})/i) ||
-    t.match(/\bi'm\s+([A-Za-z][A-Za-z0-9']{1,24})\b/i);
-  if (name) {
-    const n = name[1].trim();
-    upsertFact("name", n);
-    const p = loadProfile();
-    saveProfile({ ...p, displayName: n });
+  // Name
+  const nameMatch = text.match(/(?:my name is|i'm|i am|call me)\s+([A-Za-z][A-Za-z\s'-]{1,40})/i);
+  if (nameMatch) {
+    const name = nameMatch[1].trim().replace(/[.,!?].*$/, "");
+    if (name.length > 1) {
+      mem.displayName = name;
+      upsertFact(mem, "name", name, now);
+      saveProfile({ displayName: name });
+    }
   }
 
-  const school = t.match(/\b(?:i (?:study|school) at|my school is)\s+(.+)/i);
-  if (school) upsertFact("school", school[1].slice(0, 80));
+  // School
+  const schoolMatch = text.match(/(?:i (?:go to|attend|study at|am at)|my school is|school[:\s]+)\s*([A-Za-z0-9][A-Za-z0-9\s'.-]{2,60})/i);
+  if (schoolMatch) {
+    const school = schoolMatch[1].trim().replace(/[.,!?].*$/, "");
+    mem.school = school;
+    upsertFact(mem, "school", school, now);
+  }
 
-  const like = t.match(/\b(?:i (?:like|love|enjoy))\s+(.+)/i);
-  if (like) upsertFact("likes", like[1].slice(0, 80));
+  // Location
+  const locMatch = text.match(/(?:i live in|i'm from|i am from|my city is|location[:\s]+)\s*([A-Za-z][A-Za-z\s,.-]{2,50})/i);
+  if (locMatch) {
+    const loc = locMatch[1].trim().replace(/[.,!?].*$/, "");
+    mem.location = loc;
+    upsertFact(mem, "location", loc, now);
+  }
 
-  const live = t.match(/\b(?:i live in|i'm from|i am from)\s+(.+)/i);
-  if (live) upsertFact("location", live[1].slice(0, 60));
+  // Likes
+  const likeMatch = text.match(/(?:i like|i love|i enjoy|my favorite is|favourites?[:\s]+)\s+(.+)/i);
+  if (likeMatch) {
+    const liked = likeMatch[1].trim().slice(0, 80);
+    mem.likes = mem.likes || [];
+    if (!mem.likes.includes(liked)) mem.likes.push(liked);
+    upsertFact(mem, "likes", mem.likes.join(", "), now);
+  }
+
+  saveMemory(mem);
+  return mem;
 }
 
-/** Short memory block to prepend to system/context for the model. */
+function upsertFact(mem: UserMemory, key: string, value: string, updatedAt: number) {
+  const i = mem.facts.findIndex((f) => f.key === key);
+  if (i >= 0) mem.facts[i] = { key, value, updatedAt };
+  else mem.facts.push({ key, value, updatedAt });
+}
+
+/** Build a short context block to prepend to the system / first message. */
 export function memoryContextBlock(): string {
-  const facts = loadUserFacts();
+  const mem = loadMemory();
   const profile = loadProfile();
-  const lines: string[] = [];
-  if (profile.displayName) lines.push(`User name: ${profile.displayName}`);
-  for (const f of facts.slice(0, 12)) {
-    if (f.key === "name" && profile.displayName) continue;
-    lines.push(`${f.key}: ${f.value}`);
+  const parts: string[] = [];
+  const name = mem.displayName || profile.displayName;
+  if (name) parts.push(`User's name: ${name}`);
+  if (mem.school) parts.push(`School: ${mem.school}`);
+  if (mem.location) parts.push(`Location: ${mem.location}`);
+  if (mem.likes?.length) parts.push(`Likes: ${mem.likes.slice(0, 5).join("; ")}`);
+  for (const f of mem.facts.slice(0, 8)) {
+    if (!["name", "school", "location", "likes"].includes(f.key)) {
+      parts.push(`${f.key}: ${f.value}`);
+    }
   }
-  if (!lines.length) return "";
-  return (
-    "Known about this user (from past chats on this device):\n" +
-    lines.map((l) => `- ${l}`).join("\n") +
-    "\nUse this only when helpful; don't force it into every reply."
-  );
+  if (parts.length === 0) return "";
+  return `[User memory — use naturally, do not list as bullet points unless asked]\n${parts.join("\n")}\n`;
 }
