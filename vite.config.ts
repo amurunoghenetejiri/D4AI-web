@@ -1,18 +1,11 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
-/**
- * On Vercel, Nitro must use the vercel preset so the deployment
- * produces serverless functions instead of a static "dist" folder.
- */
-const onVercel = Boolean(process.env.VERCEL);
-
+/** D4EXAM-D4AI is deployed only on Vercel — pin Nitro preset. */
 export default defineConfig({
   tanstackStart: {
     server: { entry: "server" },
   },
-  nitro: onVercel
-    ? {
-        preset: "vercel",
-      }
-    : undefined,
+  nitro: {
+    preset: "vercel",
+  },
 });
