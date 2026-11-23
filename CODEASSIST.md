@@ -1,16 +1,21 @@
-# Run D4AI in Code Assist / Android Studio
+# Run D4AI on Code Assist
 
-## Recommended (works best)
-1. **Open the `android` folder** as the project (not the whole Git repo root).
-2. Wait for Gradle sync.
-3. Select module **app** → Run.
+## MUST DO THIS
+1. Clone / pull **D4EXAM-D4AI**
+2. In Code Assist: **Open folder → select the `android` directory only**
+   (path like `.../D4EXAM-D4AI/android`)
+3. Wait for Gradle sync
+4. Run configuration: **app**
+5. Install on device
 
-- **App name:** D4AI  
-- **applicationId:** `com.d4ai`  
-- **Splash:** native `SplashActivity` (neon logo + progress) → `MainActivity` (loads https://d4ai-app.vercel.app/)
+Do **not** open the repo root (it has a website `package.json` and confuses Code Assist → “Nothing to run”).
 
-## Kotlin sources
-- `android/app/src/main/java/com/d4exam/app/SplashActivity.kt`
-- `android/app/src/main/java/com/d4exam/app/MainActivity.kt`
+## What builds
+- Module: `:app`
+- applicationId: `com.d4ai`
+- SplashActivity → MainActivity (loads https://d4ai-app.vercel.app/)
 
-Java helpers (bridge / services) can stay alongside Kotlin in the same package.
+## If sync fails
+- JDK 17
+- Internet for Gradle deps
+- File → Invalidate caches / re-sync Gradle

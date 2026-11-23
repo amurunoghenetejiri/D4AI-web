@@ -49,12 +49,31 @@ import {
 import { cn } from "@/lib/utils";
 import { appNavigate } from "@/lib/app-navigate";
 import { useSessionUser } from "@/lib/session";
-import { pollinationsImageUrl, isImageGenRequest, extractImagePrompt } from "@/lib/pollinations";
+import { pollinationsImageUrl, isImageGenRequest, extractImagePrompt, pickImageModel } from "@/lib/pollinations";
 import {
   D4AiConnectionsSheet,
   isD4AiOwner,
   readGithubToken,
 } from "@/components/d4ai/D4AiConnections";
+
+
+async function generateD4Image(prompt: string): Promise<{ url: string; model: string }> {
+  try {
+    const res = await fetch("/api/d4ai/image", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt, width: 1024, height: 1280 }),
+    });
+    if (res.ok) {
+      const data = (await res.json()) as { url?: string; model?: string };
+      if (data.url) return { url: data.url, model: data.model || "flux" };
+    }
+  } catch {
+    /* fall through */
+  }
+  const model = pickImageModel(prompt);
+  return { url: pollinationsImageUrl(prompt, { model, width: 1024, height: 1280, enhance: true }), model };
+}
 
 export const Route = createFileRoute("/")({
   ssr: false,
@@ -1423,12 +1442,7 @@ function D4AiPage() {
       if (body && isImageGenRequest(body)) {
         const prompt = extractImagePrompt(body);
         setStatus("Generating image…");
-        const url = pollinationsImageUrl(prompt, {
-          width: 1920,
-          height: 1080,
-          model: "flux",
-          enhance: true,
-        });
+        const { url, model: imgModel } = await generateD4Image(prompt);
         const aid = `a-img-${Date.now()}`;
         // Preload so we only show when ready
         try {
@@ -1447,7 +1461,7 @@ function D4AiPage() {
           {
             id: aid,
             role: "assistant",
-            content: `Here's your image for: **${prompt}**\n\n_Powered by Pollinations Flux_`,
+            content: `Here's your image for: **${prompt}**\n\n_Powered by Pollinations ${imgModel}_`,
             imageUrl: url,
             createdAt: Date.now(),
           },

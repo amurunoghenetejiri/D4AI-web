@@ -8,6 +8,7 @@ import { Route as ApiD4aiLiveRouteImport } from './routes/api/d4ai.live'
 import { Route as ApiD4aiStreamRouteImport } from './routes/api/d4ai.stream'
 import { Route as ApiD4aiTtsRouteImport } from './routes/api/d4ai.tts'
 import { Route as ApiD4aiVoiceRouteImport } from './routes/api/d4ai.voice'
+import { Route as ApiD4aiImageRouteImport } from './routes/api/d4ai.image'
 
 const IndexRoute = IndexRouteImport.update({ id: '/', path: '/', getParentRoute: () => rootRouteImport } as any)
 const LoginRoute = LoginRouteImport.update({ id: '/login', path: '/login', getParentRoute: () => rootRouteImport } as any)
@@ -16,6 +17,7 @@ const ApiD4aiLiveRoute = ApiD4aiLiveRouteImport.update({ id: '/api/d4ai/live', p
 const ApiD4aiStreamRoute = ApiD4aiStreamRouteImport.update({ id: '/api/d4ai/stream', path: '/api/d4ai/stream', getParentRoute: () => rootRouteImport } as any)
 const ApiD4aiTtsRoute = ApiD4aiTtsRouteImport.update({ id: '/api/d4ai/tts', path: '/api/d4ai/tts', getParentRoute: () => rootRouteImport } as any)
 const ApiD4aiVoiceRoute = ApiD4aiVoiceRouteImport.update({ id: '/api/d4ai/voice', path: '/api/d4ai/voice', getParentRoute: () => rootRouteImport } as any)
+const ApiD4aiImageRoute = ApiD4aiImageRouteImport.update({ id: '/api/d4ai/image', path: '/api/d4ai/image', getParentRoute: () => rootRouteImport } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -25,6 +27,7 @@ export interface FileRoutesByFullPath {
   '/api/d4ai/stream': typeof ApiD4aiStreamRoute
   '/api/d4ai/tts': typeof ApiD4aiTtsRoute
   '/api/d4ai/voice': typeof ApiD4aiVoiceRoute
+  '/api/d4ai/image': typeof ApiD4aiImageRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -34,6 +37,7 @@ export interface FileRoutesByTo {
   '/api/d4ai/stream': typeof ApiD4aiStreamRoute
   '/api/d4ai/tts': typeof ApiD4aiTtsRoute
   '/api/d4ai/voice': typeof ApiD4aiVoiceRoute
+  '/api/d4ai/image': typeof ApiD4aiImageRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -44,6 +48,7 @@ export interface FileRoutesById {
   '/api/d4ai/stream': typeof ApiD4aiStreamRoute
   '/api/d4ai/tts': typeof ApiD4aiTtsRoute
   '/api/d4ai/voice': typeof ApiD4aiVoiceRoute
+  '/api/d4ai/image': typeof ApiD4aiImageRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -61,6 +66,7 @@ const rootRouteChildren = {
   ApiD4aiStreamRoute,
   ApiD4aiTtsRoute,
   ApiD4aiVoiceRoute,
+  ApiD4aiImageRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
