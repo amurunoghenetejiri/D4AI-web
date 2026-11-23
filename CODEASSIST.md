@@ -1,43 +1,22 @@
-# D4AI - Code Assist / Android Studio
+# D4AI - Code Assist
 
-## CRITICAL: How to open the project
+## Fix "Opened for editing only / no modules"
 
-You must open the **android** folder only:
+1. Close the project completely
+2. Pull latest from GitHub (gradle-wrapper.jar was missing before)
+3. In Code Assist: File -> Open
+4. Select the folder named **android** (inside D4EXAM-D4AI)
+5. When you see the yellow "Gradle compatibility mode" bar, tap the **checkmark / Re-sync** button
+6. Wait until sync finishes - the **app** module should appear
+7. Tap Run (green triangle)
 
-1. Code Assist / Android Studio
-2. **File -> Open**
-3. Navigate into the repo and select the folder named **android**
-4. Click OK
-5. Wait for Gradle Sync (progress bar at bottom)
-6. You should see module **app** in the project panel
+If still no module:
+- File -> Invalidate Caches -> Restart
+- Open **android** again
+- Tap the refresh icon on the yellow banner
 
-If it still says "no module" / "Configure module":
-
-1. Close the project
-2. File -> Invalidate Caches -> Invalidate and Restart
-3. Open **android** folder again
-4. Click **Sync Project with Gradle Files** (elephant icon)
-
-## Run the app
-
-1. Connect phone (USB debugging ON) or start emulator
-2. Select **app** in the run configuration dropdown
-3. Press the green Run button
-
-App name: **D4AI**
-Package: com.d4ai
-Loads: https://d4ai-app.vercel.app
-Icon: transparent D4AI logo (no black box)
-
-## Phone commands in chat
-
-- volume to 60 / volume up
-- set brightness to 80
-- open WhatsApp / open Chrome
-- turn on flashlight
-- open Wi-Fi settings
-- vibrate
-
-## Memory
-
-Conversations and facts (name, school, likes) are saved locally and restored after restart.
+## Features
+- Transparent D4AI app icon
+- Settings with 10 voices (tap to preview, select to use)
+- Device control bridge
+- Conversation memory
