@@ -12,5 +12,17 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
+
 rootProject.name = "D4AI"
 include ":app"
+
+// Optional Capacitor plugins — only included when node_modules exists
+def capSettings = file("capacitor.settings.gradle")
+if (capSettings.exists()) {
+    try {
+        apply from: "capacitor.settings.gradle"
+    } catch (Exception e) {
+        // node_modules not present — pure Code Assist / WebView mode is fine
+        println("Capacitor plugins skipped (node_modules missing). Using standalone WebView shell.")
+    }
+}
