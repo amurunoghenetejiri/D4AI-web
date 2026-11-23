@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace "com.d4ai"
+    namespace "com.d4exam.app"
     compileSdk 34
 
     defaultConfig {

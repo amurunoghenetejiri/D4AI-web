@@ -130,7 +130,7 @@ function DefaultError({ error }: { error: Error }) {
       </div>
       <h1 className="text-lg font-semibold text-slate-900">This page didn't load</h1>
       <p className="text-sm text-slate-500">
-        Something went wrong. Try again or go back to your dashboard.
+        Something went wrong. Try again or go back to D4AI.
       </p>
       <div className="flex flex-wrap justify-center gap-2">
         <button
