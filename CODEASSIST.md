@@ -1,17 +1,13 @@
-# D4AI — Code Assist / Android
+# D4AI on Code Assist
 
-- **Package / applicationId:** `com.d4ai`
-- **App name:** D4AI
-- **Open:** Android Studio / Code Assist → open `android/` module
-- **Icon:** `public/d4ai-logo.png` (also under `android/app/src/main/res` after `npx cap sync`)
+## Option A (recommended)
+1. In Code Assist, open the **`android`** folder as the project (not the whole repo root).
+2. Sync Gradle → Run **app**.
 
-## Build APK
-```bash
-npm install
-npm run build
-npx cap sync android
-# then open android/ in Code Assist and Run
-```
+## Option B
+Open the whole repo if `settings.gradle` includes `:app` → `android/app`.
 
-## Website
-https://d4-exam-d4-ai.vercel.app → opens D4AI only (no login).
+- **applicationId:** `com.d4ai`
+- **Java package namespace:** `com.d4exam.app` (source path under `android/app/src/main/java/com/d4exam/app/`)
+
+Website is separate: open https://d4ai-app.vercel.app/

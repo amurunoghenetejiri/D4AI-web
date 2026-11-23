@@ -12,6 +12,6 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "D4EXAM"
+rootProject.name = "D4AI"
 include ":app"
 project(":app").projectDir = file("android/app")

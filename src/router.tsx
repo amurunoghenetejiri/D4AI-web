@@ -113,7 +113,7 @@ function DefaultError({ error }: { error: Error }) {
         </button>
         <div className="mt-9 flex max-w-[16rem] flex-col items-center gap-2 text-slate-500">
           <p className="text-xs leading-relaxed">
-            D4EXAM will reconnect automatically
+            D4AI will reconnect automatically
             <br />
             once you're back online.
           </p>
@@ -124,13 +124,11 @@ function DefaultError({ error }: { error: Error }) {
 
   // Soft recovery for post-lock / transient errors — get user back into the app
   return (
-    <div className="mx-auto flex min-h-[50vh] max-w-md flex-col items-center justify-center gap-4 px-6 py-16 text-center">
-      <div className="grid h-14 w-14 place-items-center rounded-2xl bg-slate-100 text-xl font-bold text-slate-500">
-        D4
-      </div>
-      <h1 className="text-lg font-semibold text-slate-900">This page didn't load</h1>
-      <p className="text-sm text-slate-500">
-        Something went wrong. Try again or go back to D4AI.
+    <div className="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center gap-4 bg-[#050b18] px-6 py-16 text-center">
+      <img src="/d4ai-logo.png" alt="D4AI" className="h-16 w-16 object-contain" />
+      <h1 className="text-lg font-semibold text-cyan-100">D4AI hit a snag</h1>
+      <p className="text-sm text-slate-400">
+        Something went wrong. Try again — your chats stay on this device.
       </p>
       <div className="flex flex-wrap justify-center gap-2">
         <button

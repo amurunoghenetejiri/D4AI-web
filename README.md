@@ -1,22 +1,11 @@
 # D4AI
 
-Standalone personal AI assistant (web + Android).
+Standalone AI assistant — web + Android (`com.d4ai`).
 
-- **Web:** D4AI chat only — no school login portal
-- **Android package:** `com.d4ai`
-- **Logo / favicon:** D4AI robot mark
+## Web
+- URL: https://d4ai-app.vercel.app/
+- Route: `/` only (no school login)
 
-## Dev
-```bash
-npm install
-npm run dev
-```
-
-## Deploy
-Vercel project linked to this repo. Env: Supabase keys (same as D4EXAM if you share a project) optional for pure chat via `/api/d4ai/*`.
-
-## Routes kept
-- `/` → redirects to `/student/d4ai`
-- `/login` → redirects to `/student/d4ai`
-- `/student/d4ai` — main app
-- `/api/d4ai/*` — chat, stream, tts, voice, live
+## Android (Code Assist)
+Open the **`android/`** folder → Sync → Run.
+See `CODEASSIST.md`.
