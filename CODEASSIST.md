@@ -1,46 +1,43 @@
-# D4AI — Code Assist / Android Studio run guide
+# D4AI - Code Assist / Android Studio
 
-## Open the project correctly
+## CRITICAL: How to open the project
 
-**Important:** Open the `android/` folder (not the repo root).
+You must open the **android** folder only:
 
-1. In Code Assist / Android Studio: **File → Open**
-2. Select the `android` folder inside this repo
-3. Wait for Gradle Sync
+1. Code Assist / Android Studio
+2. **File -> Open**
+3. Navigate into the repo and select the folder named **android**
+4. Click OK
+5. Wait for Gradle Sync (progress bar at bottom)
+6. You should see module **app** in the project panel
 
-If you see “Configure module” / “need module set up first”:
-- Make sure you opened the **android/** directory
-- Click **Sync Project with Gradle Files** (elephant icon)
-- File → Invalidate Caches → Invalidate and Restart (if still broken)
+If it still says "no module" / "Configure module":
 
-## What the project contains
+1. Close the project
+2. File -> Invalidate Caches -> Invalidate and Restart
+3. Open **android** folder again
+4. Click **Sync Project with Gradle Files** (elephant icon)
 
-- `:app` module — standalone WebView shell
-- Loads https://d4ai-app.vercel.app
-- `DeviceControlBridge` → `window.D4Device` (volume, brightness, apps, torch, settings)
-- No Capacitor / node_modules required for basic run
+## Run the app
 
-## Run
+1. Connect phone (USB debugging ON) or start emulator
+2. Select **app** in the run configuration dropdown
+3. Press the green Run button
 
-1. Connect a phone (USB debugging) or start an emulator
-2. Select the `app` run configuration
-3. Press Run ▶
+App name: **D4AI**
+Package: com.d4ai
+Loads: https://d4ai-app.vercel.app
+Icon: transparent D4AI logo (no black box)
 
-## Phone commands (say them in D4AI chat)
+## Phone commands in chat
 
-- volume to 60 / volume up / volume down
+- volume to 60 / volume up
 - set brightness to 80
 - open WhatsApp / open Chrome
-- turn on flashlight / torch off
-- open Wi-Fi settings / open data settings / open hotspot
+- turn on flashlight
+- open Wi-Fi settings
 - vibrate
 
 ## Memory
 
-D4AI stores conversations and user facts (name, school, likes…) in localStorage.
-They survive app restarts. Tell D4AI your name and preferences once — it will remember.
-
-## Rebuild after web changes
-
-The app loads the live site. Web UI updates appear automatically.
-Native bridge changes need a new APK / Run.
+Conversations and facts (name, school, likes) are saved locally and restored after restart.
