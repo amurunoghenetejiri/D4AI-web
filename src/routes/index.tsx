@@ -49,6 +49,7 @@ import {
 import { cn } from "@/lib/utils";
 import { appNavigate } from "@/lib/app-navigate";
 import { useSessionUser } from "@/lib/session";
+import { pollinationsImageUrl, isImageGenRequest, extractImagePrompt } from "@/lib/pollinations";
 import {
   D4AiConnectionsSheet,
   isD4AiOwner,
@@ -79,6 +80,7 @@ type Msg = {
   role: "user" | "assistant";
   content: string;
   imagePreview?: string;
+  imageUrl?: string;
   docName?: string;
   createdAt?: number;
 };
@@ -222,16 +224,16 @@ type VoiceChar = {
 };
 
 const VOICE_CHARS: VoiceChar[] = [
-  { id: "ada", name: "Ada", title: "Female · Clear", vibe: "Clear friendly female", emoji: "👩", file: "ceo_ref.wav", sample: "Hi, I'm Ada. Your clear and friendly study companion.", rate: 1.15, pitch: 1.12, seVoice: "Amy" },
-  { id: "chidi", name: "Chidi", title: "Male · Warm", vibe: "Warm natural male", emoji: "👨", file: "ceo_ref.wav", sample: "Hello, I'm Chidi. Warm, natural, and ready to help.", rate: 1.08, pitch: 0.92, seVoice: "Brian" },
-  { id: "tunde", name: "Tunde", title: "Male · Deep", vibe: "Deep bass male", emoji: "🗣️", file: "titan_bass_ref.wav", sample: "I'm Tunde. Deep voice, steady and strong.", rate: 0.98, pitch: 0.72, seVoice: "Matthew" },
-  { id: "amaka", name: "Amaka", title: "Female · Bright", vibe: "Bright energetic female", emoji: "✨", file: "lovelle_romantic_ref.wav", sample: "Hey! I'm Amaka — bright, upbeat, and ready to learn!", rate: 1.22, pitch: 1.18, seVoice: "Joanna" },
-  { id: "ngozi", name: "Ngozi", title: "Female · Soft", vibe: "Soft calm whisper-like", emoji: "🌿", file: "whisper_soft_ref.wav", sample: "Hello, I'm Ngozi. Soft, calm, and gentle.", rate: 1.05, pitch: 1.05, seVoice: "Emma" },
-  { id: "kola", name: "Kola", title: "Male · Firm", vibe: "Firm instructive male", emoji: "📘", file: "orion_wise_ref.wav", sample: "I'm Kola. Firm, clear, and focused on your success.", rate: 1.02, pitch: 0.85, seVoice: "Matthew" },
-  { id: "funke", name: "Funke", title: "Anime · Cute", vibe: "Anime-style high energy", emoji: "🎌", file: "bubbly_cartoon_ref.wav", sample: "Hi hi! I'm Funke — cute anime energy for studying!", rate: 1.28, pitch: 1.35, seVoice: "Ivy" },
-  { id: "robo", name: "Robo", title: "Robot · AI", vibe: "Robotic metallic", emoji: "🤖", file: "robo_metal_ref.wav", sample: "System online. I am Robo. Precision mode activated.", rate: 0.95, pitch: 0.7, seVoice: "Brian" },
-  { id: "nova", name: "Nova", title: "Alien · Sweet", vibe: "Sweet otherworldly", emoji: "👽", file: "nova_alien_ref.wav", sample: "Greetings. I am Nova, from beyond the stars.", rate: 1.1, pitch: 1.25, seVoice: "Joanna" },
-  { id: "baritone", name: "Baritone", title: "Male · Narrator", vibe: "Deep narrator baritone", emoji: "🎙️", file: "baritone_deep_ref.wav", sample: "I'm Baritone. A rich narrator voice for long sessions.", rate: 1.0, pitch: 0.75, seVoice: "Matthew" },
+  { id: "ada", name: "Ada", title: "Female · Clear", vibe: "Clear British female", emoji: "👩", file: "ceo_ref.wav", sample: "Hi, I'm Ada. Your clear and friendly study companion.", rate: 1.05, pitch: 1.05, seVoice: "Amy" },
+  { id: "chidi", name: "Chidi", title: "Male · Warm", vibe: "Warm American male", emoji: "👨", file: "ceo_ref.wav", sample: "Hello, I'm Chidi. Warm, natural, and ready to help.", rate: 1.0, pitch: 1.0, seVoice: "Brian" },
+  { id: "tunde", name: "Tunde", title: "Male · Deep", vibe: "Deep resonant male", emoji: "🗣️", file: "titan_bass_ref.wav", sample: "I'm Tunde. Deep voice, steady and strong.", rate: 0.95, pitch: 0.9, seVoice: "Matthew" },
+  { id: "amaka", name: "Amaka", title: "Female · Bright", vibe: "Bright Jenny female", emoji: "✨", file: "lovelle_romantic_ref.wav", sample: "Hey! I'm Amaka — bright, upbeat, and ready to learn!", rate: 1.08, pitch: 1.05, seVoice: "Joanna" },
+  { id: "ngozi", name: "Ngozi", title: "Female · Soft", vibe: "Soft calm British", emoji: "🌿", file: "whisper_soft_ref.wav", sample: "Hello, I'm Ngozi. Soft, calm, and gentle.", rate: 0.98, pitch: 1.02, seVoice: "Emma" },
+  { id: "kola", name: "Kola", title: "Male · Firm", vibe: "Firm Christopher male", emoji: "📘", file: "orion_wise_ref.wav", sample: "I'm Kola. Firm, clear, and focused on your success.", rate: 0.98, pitch: 0.95, seVoice: "Matthew" },
+  { id: "funke", name: "Funke", title: "Anime · Cute", vibe: "Young anime-style", emoji: "🎌", file: "bubbly_cartoon_ref.wav", sample: "Hi hi! I'm Funke — cute anime energy for studying!", rate: 1.12, pitch: 1.15, seVoice: "Ivy" },
+  { id: "robo", name: "Robo", title: "Robot · AI", vibe: "Davis robotic male", emoji: "🤖", file: "robo_metal_ref.wav", sample: "System online. I am Robo. Precision mode activated.", rate: 0.92, pitch: 0.85, seVoice: "Justin" },
+  { id: "nova", name: "Nova", title: "Alien · Sweet", vibe: "Australian Natasha", emoji: "👽", file: "nova_alien_ref.wav", sample: "Greetings. I am Nova, from beyond the stars.", rate: 1.05, pitch: 1.1, seVoice: "Salli" },
+  { id: "baritone", name: "Baritone", title: "Male · Narrator", vibe: "British Thomas narrator", emoji: "🎙️", file: "baritone_deep_ref.wav", sample: "I'm Baritone. A rich narrator voice for long sessions.", rate: 0.95, pitch: 0.9, seVoice: "Brian" },
 ];
 
 function loadVoicePreset(): VoicePreset {
@@ -259,13 +261,20 @@ function pickVoice(preset: VoicePreset): SpeechSynthesisVoice | null {
     const en = voices.filter((v) => /en[-_]?/i.test(v.lang));
     const pool = en.length ? en : [...voices];
     const char = getVoiceChar(preset);
-    const idx = Math.max(0, VOICE_CHARS.findIndex((c) => c.id === char.id));
-    const female = pool.filter((v) => /female|samantha|karen|zira|amy|emma|salli|ivy|joanna|woman|girl|fiona|moira|veena|tessa/i.test(v.name));
-    const male = pool.filter((v) => /male|david|daniel|mark|george|fred|brian|matthew|joey|alex|thomas|ravi|man/i.test(v.name) || !/female|samantha|karen|zira|amy|emma|salli|ivy|joanna|woman|girl/i.test(v.name));
-    const preferFemale = /nova|luna|aria|pixel|echo/.test(char.id);
+    const femaleIds = new Set(["ada", "amaka", "ngozi", "funke", "nova"]);
+    const preferFemale = femaleIds.has(char.id);
+    const female = pool.filter((v) =>
+      /female|samantha|karen|zira|amy|emma|salli|ivy|joanna|woman|girl|fiona|moira|veena|tessa|sonia|libby|natasha|aria|michelle/i.test(v.name),
+    );
+    const male = pool.filter((v) =>
+      /male|david|daniel|mark|george|fred|brian|matthew|joey|alex|thomas|ravi|man|guy|eric|ryan|christopher|davis|steffan|thomas/i.test(v.name),
+    );
     const list = preferFemale ? (female.length ? female : pool) : (male.length ? male : pool);
-    // Pick different voice per character index so 12 characters map across available voices
-    return list[idx % list.length] || pool[idx % pool.length] || null;
+    // Stable unique pick per character id
+    let hash = 0;
+    for (let i = 0; i < char.id.length; i++) hash = (hash * 31 + char.id.charCodeAt(i)) | 0;
+    const idx = Math.abs(hash) % list.length;
+    return list[idx] || pool[0] || null;
   } catch {
     return null;
   }
@@ -1410,6 +1419,46 @@ function D4AiPage() {
       setStatus(null);
       scrollDown();
 
+      // ---- Image generation via Pollinations AI (free, Flux, up to 4K) ----
+      if (body && isImageGenRequest(body)) {
+        const prompt = extractImagePrompt(body);
+        setStatus("Generating image…");
+        const url = pollinationsImageUrl(prompt, {
+          width: 1920,
+          height: 1080,
+          model: "flux",
+          enhance: true,
+        });
+        const aid = `a-img-${Date.now()}`;
+        // Preload so we only show when ready
+        try {
+          await new Promise<void>((resolve, reject) => {
+            const im = new Image();
+            im.onload = () => resolve();
+            im.onerror = () => reject(new Error("Image failed"));
+            im.src = url;
+            window.setTimeout(() => resolve(), 45000);
+          });
+        } catch {
+          /* still show URL — browser may load later */
+        }
+        updateActiveMessages((m) => [
+          ...m,
+          {
+            id: aid,
+            role: "assistant",
+            content: `Here's your image for: **${prompt}**\n\n_Powered by Pollinations Flux_`,
+            imageUrl: url,
+            createdAt: Date.now(),
+          },
+        ]);
+        setStatus(null);
+        setBusy(false);
+        setStreaming(false);
+        scrollDown();
+        return;
+      }
+
       if (imgs?.[0] && !dText) {
         setStatus(null);
         const ocr = await ocrImageDataUrl(imgs[0]);
@@ -2187,6 +2236,16 @@ function D4AiPage() {
               >
                 {m.imagePreview ? (
                   <img src={m.imagePreview} alt="" className="mb-2 max-h-48 w-full rounded-xl object-cover" />
+                ) : null}
+                {m.imageUrl ? (
+                  <a href={m.imageUrl} target="_blank" rel="noreferrer" className="mb-2 block overflow-hidden rounded-xl">
+                    <img
+                      src={m.imageUrl}
+                      alt="Generated"
+                      className="max-h-[420px] w-full object-cover"
+                      loading="lazy"
+                    />
+                  </a>
                 ) : null}
                 {m.docName ? (
                   <p className="mb-1 flex items-center gap-1 text-xs opacity-90">
