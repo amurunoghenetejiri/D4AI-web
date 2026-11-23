@@ -1,5 +1,3 @@
-// Root settings — for opening the whole repo.
-// For Code Assist / Android Studio: open the android/ folder instead.
 pluginManagement {
     repositories {
         google()
@@ -15,5 +13,5 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "D4AI"
-include ":app"
-project(":app").projectDir = file("android/app")
+include ':app'
+project(':app').projectDir = file('android/app')

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">D4AI</string>
-    <string name="title_activity_main">D4AI</string>
-    <string name="package_name">com.d4exam.app</string>
-    <string name="custom_url_scheme">com.d4ai</string>
+    <string name="d4ai_title">D4AI</string>
+    <string name="d4ai_brand">D 4 T E C H</string>
+    <string name="d4ai_motto">Creating Solutions. Innovating Lives.</string>
 </resources>

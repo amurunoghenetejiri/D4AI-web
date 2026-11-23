@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#0b1b3a</color>
-    <color name="colorPrimaryDark">#050b18</color>
-    <color name="colorAccent">#22d3ee</color>
-    <color name="ic_launcher_background">#0b1b3a</color>
+    <color name="d4ai_bg">#050b18</color>
+    <color name="d4ai_bg_mid">#0c1a3a</color>
+    <color name="d4ai_cyan">#22d3ee</color>
+    <color name="d4ai_cyan_dim">#0891b2</color>
+    <color name="d4ai_text">#E8F4FF</color>
+    <color name="d4ai_muted">#8BA3C7</color>
+    <color name="d4ai_bar_track">#1e3a5f</color>
+    <color name="ic_launcher_background">#050b18</color>
 </resources>
