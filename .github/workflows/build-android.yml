@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
-      contents: write
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -28,12 +28,22 @@ jobs:
           distribution: temurin
           java-version: "17"
       - uses: android-actions/setup-android@v3
+        with:
+          accept-android-sdk-licenses: true
+          packages: |
+            platform-tools
+            platforms;android-34
+            build-tools;34.0.0
+      - name: Verify Android launcher sources
+        run: |
+          test -f android/app/src/main/java/com/d4ai/app/SplashActivity.kt
+          test -f android/app/src/main/java/com/d4ai/app/MainActivity.kt
       - name: Assemble debug APK
         run: |
-          chmod +x gradlew || true
+          chmod +x gradlew
           ./gradlew :app:assembleDebug --no-daemon --stacktrace
       - uses: actions/upload-artifact@v4
         with:
           name: d4ai-debug-apk
-          path: app/build/outputs/apk/debug/*.apk
+          path: android/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
