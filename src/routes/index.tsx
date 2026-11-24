@@ -1052,7 +1052,7 @@ const GLOBAL_CSS = `
 `;
 
 function D4AiPage() {
-  const [showSplash, setShowSplash] = useState(true);
+  const [showSplash, setShowSplash] = useState(false); // native splash only — skip web splash
 
   const navigate = useNavigate();
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -2561,7 +2561,7 @@ function D4AiPage() {
       }}
     >
       <style>{GLOBAL_CSS}</style>
-      {showSplash ? <D4AiSplash onDone={() => setShowSplash(false)} /> : null}
+      {showSplash && !(typeof window !== "undefined" && (window as any).__D4_NATIVE__) ? <D4AiSplash onDone={() => setShowSplash(false)} /> : null}
 
       {/* Scroll to latest message */}
       {tab === "chat" && !voiceOn && !nearBottom ? (
