@@ -1,24 +1,19 @@
-# D4AI — Run on Code Assist
+# Code Assist — make D4AI RUN
 
-## Open THIS folder only
-```
-D4EXAM-D4AI/android
-```
-Not the repo root. The root is a web project and shows “Nothing to run”.
+## Option A (best)
+1. Delete the old project from Code Assist
+2. Clone again: `https://github.com/amurunoghenetejiri/D4EXAM-D4AI.git`
+3. After clone, **File → Open** the folder named **`android`**  
+   Full path example: `.../codeassist/projects/D4EXAM-D4AI/android`
+4. Wait until the yellow banner **“Opened for editing only” disappears** and Gradle finishes
+5. Tap the green **▶ Run** — configuration must say **app**
 
-## Steps
-1. Git pull latest `main`
-2. Code Assist → **Open** → choose **`android`**
-3. Wait for Gradle sync (JDK 17)
-4. Select run config **app**
-5. Run / Install
+## Option B
+Open the whole repo if Option A fails — root `settings.gradle` also includes `:app`.
 
-## What you get
-- Package id: `com.d4ai`
-- Splash → WebView D4AI (`https://d4ai-app.vercel.app/`)
-- Native TTS bridge: `D4Device.speak(text, rate, pitch)`
+## You must see
+- Module **app**
+- Launcher activity **SplashActivity**
+- applicationId **com.d4ai**
 
-## If “Nothing to run”
-- You opened the wrong folder (must be `android`)
-- Re-sync Gradle
-- Ensure `android/app/src/main/AndroidManifest.xml` has launcher activity `SplashActivity`
+If you still see “Nothing to run”, the IDE never loaded Gradle. Close project → Open **android** folder only → Sync.

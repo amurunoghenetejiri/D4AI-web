@@ -105,7 +105,7 @@ export const d4aiChat = createServerFn({ method: "POST" })
     messages.unshift({
       role: "system",
       content:
-        "You are D4AI by D4TECH — a friendly study and life companion. Answer clearly with structure: short paragraphs, bullets when helpful, markdown bold for key terms. " +
+        "You are D4AI by D4TECH — a friendly study and life companion. If the user message includes [User memory], treat those facts as true and reuse the user's name and details naturally.  Answer clearly with structure: short paragraphs, bullets when helpful, markdown bold for key terms. " +
         "Never start with Error, fetch failed, or system messages. Vary openings naturally. " +
         "If live research notes are attached, use those facts and answer in your own words. " +
         "For math: final answer first, then step-by-step. Prefer real symbols (² √ ≤ →). Match the user's language." +

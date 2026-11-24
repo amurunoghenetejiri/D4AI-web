@@ -49,6 +49,13 @@ import {
 import { cn } from "@/lib/utils";
 import { appNavigate } from "@/lib/app-navigate";
 import { useSessionUser } from "@/lib/session";
+import {
+  extractFactsFromMessage,
+  memoryContextBlock,
+  updateChatSummary,
+  loadMemory,
+  loadProfile,
+} from "@/lib/d4ai-memory";
 import { pollinationsImageUrl, isImageGenRequest, extractImagePrompt, pickImageModel } from "@/lib/pollinations";
 import {
   D4AiConnectionsSheet,
@@ -1465,6 +1472,16 @@ function D4AiPage() {
           try { localStorage.setItem(NICK_KEY, name); } catch {}
         }
       }
+      // Persist personal facts (name, school, location, likes, "remember that…")
+      if (body) {
+        try {
+          const mem = extractFactsFromMessage(body);
+          if (mem.displayName && mem.displayName !== nickname) {
+            setNickname(mem.displayName);
+            try { localStorage.setItem(NICK_KEY, mem.displayName); } catch {}
+          }
+        } catch {}
+      }
       updateActiveMessages((m) => {
         const base = m.some((x) => x.id === "welcome") ? m : [WELCOME, ...m];
         return [...base, userMsg];
@@ -1521,10 +1538,27 @@ function D4AiPage() {
         .map((m) => ({ role: m.role as "user" | "assistant", content: m.content }));
       // Prefer recent context; hard cap under schema max(24)
       if (history.length > 20) history = history.slice(-20);
-      if (nickname && history.length) {
-        const last = history[history.length - 1];
-        if (last.role === "user") {
-          last.content = `(Call me ${nickname}.)\n${last.content}`;
+      // Inject durable memory so the model knows who you are across chats
+      try {
+        const memBlock = memoryContextBlock();
+        const mem = loadMemory();
+        const profile = loadProfile();
+        const name = nickname || mem.displayName || profile.displayName || "";
+        if (history.length) {
+          const last = history[history.length - 1];
+          if (last.role === "user") {
+            const bits: string[] = [];
+            if (memBlock) bits.push(memBlock.trim());
+            if (name) bits.push(`The user's name is ${name}. Address them by name when it feels natural.`);
+            if (bits.length) last.content = bits.join("\n") + "\n\n" + last.content;
+          }
+        }
+      } catch {
+        if (nickname && history.length) {
+          const last = history[history.length - 1];
+          if (last.role === "user") {
+            last.content = `(Call me ${nickname}.)\n${last.content}`;
+          }
         }
       }
       if (!history.length) {

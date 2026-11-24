@@ -1,4 +1,0 @@
-// Capacitor plugins — intentionally empty for Code Assist / standalone builds.
-// When you have node_modules, run: npx cap sync android
-// include ':capacitor-android'
-// project(':capacitor-android').projectDir = new File('../node_modules/@capacitor/android/capacitor')
