@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Generate D4EXAM launcher icons into an existing android/ tree.
+# Generate D4AI launcher icons into the canonical android/ tree.
 # Never exits non-zero — a missing icon should not block the APK build.
 set -uo pipefail
 
@@ -7,7 +7,7 @@ DRAW="android/app/src/main/res/drawable"
 mkdir -p "$DRAW"
 
 ICON_SRC=""
-for candidate in public/icon-512.png public/logo.png public/apple-touch-icon.png public/favicon.png; do
+for candidate in public/d4ai-icon-512.png public/icon-512.png public/logo.png public/apple-touch-icon.png public/favicon.png; do
   if [ -f "$candidate" ]; then
     ICON_SRC="$candidate"
     break
@@ -88,7 +88,7 @@ if [ "$OK" -eq 1 ]; then
     '</adaptive-icon>' > "$ANY/ic_launcher.xml"
   cp "$ANY/ic_launcher.xml" "$ANY/ic_launcher_round.xml"
   resize_icon "$ICON_SRC" 48 "$DRAW/ic_stat_d4exam.png" 100 || true
-  echo "OK: D4EXAM launcher icons written"
+  echo "OK: D4AI launcher icons written"
   ls -la android/app/src/main/res/mipmap-xxxhdpi/ || true
 else
   echo "WARN: icon generation failed; Cap default icon kept"
@@ -98,7 +98,7 @@ fi
 # Native launch splash logo (navy screen + centered brand mark from first frame)
 # Written AFTER drawable XML cleanup in CI so PNG is not deleted by basename loop.
 for dest in \
-  "android/app/src/main/res/drawable/d4exam_splash_logo.png" \
+  "android/app/src/main/res/drawable-nodpi/d4ai_logo.png" \
   "native-android/app/src/main/res/drawable/d4exam_splash_logo.png"; do
   mkdir -p "$(dirname "$dest")"
   if resize_icon "$ICON_SRC" 240 "$dest" 90; then

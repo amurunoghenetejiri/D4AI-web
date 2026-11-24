@@ -18,22 +18,36 @@ jobs:
   build-apk:
     name: Build D4AI Debug APK
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 40
     permissions:
-      contents: write
+      contents: read
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "17"
-      - uses: android-actions/setup-android@v3
-      - name: Assemble debug APK
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          # v3's old default also attempted to install the retired "tools" package.
+          packages: "platform-tools"
+
+      - name: Generate D4AI Android launcher and splash icons
         run: |
-          chmod +x gradlew || true
+          bash scripts/android-apply-icons.sh
+
+      - name: Assemble D4AI debug APK
+        run: |
+          chmod +x ./gradlew
           ./gradlew :app:assembleDebug --no-daemon --stacktrace
-      - uses: actions/upload-artifact@v4
+
+      - name: Upload D4AI APK
+        uses: actions/upload-artifact@v4
         with:
           name: d4ai-debug-apk
-          path: app/build/outputs/apk/debug/*.apk
+          path: android/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
