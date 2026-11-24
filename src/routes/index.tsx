@@ -273,51 +273,60 @@ function getVoiceChar(id: VoicePreset): VoiceChar {
   return VOICE_CHARS.find((c) => c.id === id) || VOICE_CHARS.find((c) => c.id === "ada") || VOICE_CHARS[0];
 }
 
+
+function nativeSpeak(text: string, rate: number, pitch: number): boolean {
+  try {
+    const d4 = (window as unknown as { D4Device?: { speak?: (t: string, r: number, p: number) => string } }).D4Device;
+    if (d4?.speak) {
+      const res = d4.speak(text.slice(0, 3500), rate, pitch);
+      return typeof res === "string" ? res.includes('"ok":true') || res.includes('"ok": true') : true;
+    }
+  } catch {}
+  return false;
+}
+
 function pickVoice(preset: VoicePreset): SpeechSynthesisVoice | null {
   try {
     const voices = window.speechSynthesis.getVoices();
     if (!voices.length) return null;
     const en = voices.filter((v) => /en[-_]?/i.test(v.lang));
     const pool = en.length ? en : [...voices];
-    const char = getVoiceChar(preset);
+    const char = VOICE_CHARS.find((c) => c.id === preset);
+    const wantName = (char?.seVoice || "").toLowerCase();
+    const maleIds = new Set(["chidi", "tunde", "kola", "robo", "baritone"]);
+    const wantMale = maleIds.has(preset);
 
-    // Preferred engine voice name fragments per character (Android + desktop)
-    const prefer: Record<string, RegExp> = {
-      ada: /amy|samantha|karen|zira|female|google uk english female|en-gb.*female/i,
-      chidi: /brian|david|daniel|mark|google us english male|en-us.*male/i,
-      tunde: /matthew|george|fred|thomas|baritone|en-gb.*male|uk english male/i,
-      amaka: /joanna|jenny|aria|michelle|salli|us english female/i,
-      ngozi: /emma|serena|libby|sonia|fiona|moira|uk english female/i,
-      kola: /joey|eric|ryan|guy|christopher|us english male/i,
-      funke: /ivy|kathy|princess|child|kid|young/i,
-      robo: /justin|robot|reed|compact|novelty/i,
-      nova: /salli|natasha|tessa|australian|en-au/i,
-      baritone: /brian|thomas|daniel|ravi|en-gb.*male/i,
+    // 1) Exact / partial name match (Google/Microsoft/Apple voice names)
+    const nameHints: Record<string, string[]> = {
+      ada: ["amy", "zira", "samantha", "karen", "moira", "female"],
+      chidi: ["brian", "mark", "david", "daniel", "alex", "male"],
+      tunde: ["matthew", "guy", "ravi", "thomas", "fred"],
+      amaka: ["joanna", "jenny", "salli", "susan", "victoria"],
+      ngozi: ["emma", "serena", "fiona", "kate"],
+      kola: ["joey", "justin", "nathan", "james"],
+      funke: ["ivy", "kathy", "princess", "tessa"],
+      robo: ["microsoft david", "echo", "robot", "reed"],
+      nova: ["natasha", "nicole", "salli", "zira"],
+      baritone: ["thomas", "george", "daniel", "arthur"],
     };
-    const re = prefer[char.id];
-    if (re) {
-      const hit = pool.find((v) => re.test(v.name) || re.test(v.lang + " " + v.name));
+    const hints = nameHints[preset] || [wantName];
+    for (const h of hints) {
+      const hit = pool.find((v) => v.name.toLowerCase().includes(h));
       if (hit) return hit;
     }
 
-    const femaleIds = new Set(["ada", "amaka", "ngozi", "funke", "nova"]);
-    const preferFemale = femaleIds.has(char.id);
-    const female = pool.filter((v) =>
-      /female|samantha|karen|zira|amy|emma|salli|ivy|joanna|woman|girl|fiona|moira|veena|tessa|sonia|libby|natasha|aria|michelle/i.test(
-        v.name,
-      ),
-    );
-    const male = pool.filter((v) =>
-      /male|david|daniel|mark|george|fred|brian|matthew|joey|alex|thomas|ravi|man|guy|eric|ryan|christopher|davis|steffan/i.test(
-        v.name,
-      ),
-    );
-    const list = preferFemale ? (female.length ? female : pool) : male.length ? male : pool;
-    let hash = 0;
-    for (let i = 0; i < char.id.length; i++) hash = (hash * 31 + char.id.charCodeAt(i)) | 0;
-    // Spread picks across the list so characters don't collapse to one voice
-    const idx = Math.abs(hash + char.id.length * 17) % list.length;
-    return list[idx] || pool[0] || null;
+    // 2) Split pool by perceived gender from voice name
+    const femaleRe = /female|woman|zira|samantha|karen|moira|susan|hazel|linda|heather|catherine|fiona|serena|joanna|salli|ivy|emma|amy|jenny|victoria|tessa|kate/i;
+    const maleRe = /male|man|david|mark|daniel|george|thomas|fred|james|brian|matthew|joey|justin|ravi|arthur|guy|alex(?!a)/i;
+    const females = pool.filter((v) => femaleRe.test(v.name));
+    const males = pool.filter((v) => maleRe.test(v.name));
+    const genderPool = wantMale ? (males.length ? males : pool) : (females.length ? females : pool);
+
+    // 3) Stable unique index per character so 10 characters map to different voices
+    const order = VOICE_CHARS.map((c) => c.id);
+    const idx = Math.max(0, order.indexOf(preset));
+    if (genderPool.length) return genderPool[idx % genderPool.length];
+    return pool[idx % pool.length];
   } catch {
     return null;
   }
@@ -656,6 +665,8 @@ function speakText(
       else nextFetch = null;
       if (obj) {
         await playObj(obj, piece);
+      } else if (nativeSpeak(piece, char.rate, char.pitch)) {
+        await new Promise<void>((r) => window.setTimeout(r, Math.min(12000, 400 + piece.length * 55)));
       } else if (window.speechSynthesis) {
         await new Promise<void>((resolve) => {
           const u = new SpeechSynthesisUtterance(piece);

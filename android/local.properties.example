@@ -1,0 +1,2 @@
+## Copy to local.properties and set your SDK path (Code Assist usually creates this automatically)
+# sdk.dir=/path/to/Android/Sdk

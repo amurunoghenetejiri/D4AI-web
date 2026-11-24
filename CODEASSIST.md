@@ -1,17 +1,24 @@
-# D4AI — Code Assist / Android Studio
+# D4AI — Run on Code Assist
 
-## Open the REPO ROOT (now works)
-The Android **`app`** module is at the **repository root**.
+## Open THIS folder only
+```
+D4EXAM-D4AI/android
+```
+Not the repo root. The root is a web project and shows “Nothing to run”.
 
-1. Pull latest `main`
-2. Open project folder **D4EXAM-D4AI** (repo root)
-3. Code Assist should list module **app**
-4. Run **app**
+## Steps
+1. Git pull latest `main`
+2. Code Assist → **Open** → choose **`android`**
+3. Wait for Gradle sync (JDK 17)
+4. Select run config **app**
+5. Run / Install
 
-### If still “Nothing to run”
-1. Close project
-2. Open **only** the `android` folder inside the repo
-3. Sync Gradle → Run **app**
+## What you get
+- Package id: `com.d4ai`
+- Splash → WebView D4AI (`https://d4ai-app.vercel.app/`)
+- Native TTS bridge: `D4Device.speak(text, rate, pitch)`
 
-- applicationId: `com.d4ai`
-- Splash → MainActivity (WebView to https://d4ai-app.vercel.app/)
+## If “Nothing to run”
+- You opened the wrong folder (must be `android`)
+- Re-sync Gradle
+- Ensure `android/app/src/main/AndroidManifest.xml` has launcher activity `SplashActivity`
