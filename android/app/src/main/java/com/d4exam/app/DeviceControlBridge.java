@@ -1,5 +1,7 @@
 package com.d4exam.app;
 
+import android.Manifest;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -347,6 +349,71 @@ public class DeviceControlBridge {
                 }
             }
             return "{\"ok\":false}";
+        } catch (Exception e) {
+            return fail(e);
+        }
+    }
+
+
+    @JavascriptInterface
+    public String requestOverlayPermission() {
+        try {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                if (!Settings.canDrawOverlays(activity)) {
+                    Intent i = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                            Uri.parse("package:" + activity.getPackageName()));
+                    i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    activity.startActivity(i);
+                    return "{\"ok\":true,\"opened\":true}";
+                }
+                return "{\"ok\":true,\"granted\":true}";
+            }
+            return "{\"ok\":true,\"granted\":true}";
+        } catch (Exception e) {
+            return fail(e);
+        }
+    }
+
+    @JavascriptInterface
+    public String requestWriteSettingsPermission() {
+        try {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                if (!Settings.System.canWrite(activity)) {
+                    Intent i = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);
+                    i.setData(Uri.parse("package:" + activity.getPackageName()));
+                    i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    activity.startActivity(i);
+                    return "{\"ok\":true,\"opened\":true}";
+                }
+                return "{\"ok\":true,\"granted\":true}";
+            }
+            return "{\"ok\":true,\"granted\":true}";
+        } catch (Exception e) {
+            return fail(e);
+        }
+    }
+
+    @JavascriptInterface
+    public String canDrawOverlays() {
+        try {
+            boolean ok = true;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                ok = Settings.canDrawOverlays(activity);
+            }
+            return "{\"ok\":true,\"granted\":" + ok + "}";
+        } catch (Exception e) {
+            return fail(e);
+        }
+    }
+
+    @JavascriptInterface
+    public String openAppInfo() {
+        try {
+            Intent i = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+            i.setData(Uri.parse("package:" + activity.getPackageName()));
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            activity.startActivity(i);
+            return "{\"ok\":true}";
         } catch (Exception e) {
             return fail(e);
         }
