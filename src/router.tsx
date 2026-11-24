@@ -21,8 +21,20 @@ function isApkShell(): boolean {
   }
 }
 
-/** Route transition loader — compact, never full navy D4EXAM splash. */
+/** Route transition loader — hidden on native APK (native splash already shown). */
 function DefaultPending() {
+  try {
+    if (typeof window !== "undefined") {
+      const w = window as unknown as { __D4_NATIVE__?: boolean; D4Android?: unknown; D4Device?: unknown };
+      const ua = navigator.userAgent || "";
+      const native =
+        Boolean(w.__D4_NATIVE__ || w.D4Android || w.D4Device) ||
+        (ua.includes("; wv)") && /Android/i.test(ua));
+      if (native) {
+        return <div className="min-h-dvh w-full" style={{ background: "#050b18" }} />;
+      }
+    }
+  } catch { /* web */ }
   return (
     <div
       role="status"
@@ -217,7 +229,7 @@ export const getRouter = () => {
     defaultPreloadStaleTime: 5 * 60_000,
     defaultPreload: "intent",
     defaultPendingMs: 0,
-    defaultPendingMinMs: 120,
+    defaultPendingMinMs: 0,
     defaultPendingComponent: DefaultPending,
     defaultErrorComponent: DefaultError as never,
   });
