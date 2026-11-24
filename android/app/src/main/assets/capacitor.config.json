@@ -1,60 +1,24 @@
 {
-  "appId": "com.d4exam.app",
-  "appName": "D4EXAM",
+  "appId": "com.d4tech.d4ai.run1124",
+  "appName": "D4AI",
   "webDir": "dist",
   "server": {
-    "url": "https://d4exam-platform.vercel.app",
+    "url": "https://d4ai-app.vercel.app",
     "androidScheme": "https",
-    "cleartext": false,
-    "errorPath": "offline.html",
+    "cleartext": true,
     "hostname": "localhost",
     "allowNavigation": [
-      "d4exam.name.ng",
-      "*.d4exam.name.ng",
-      "d4exam-platform.vercel.app",
+      "d4ai-app.vercel.app",
       "*.vercel.app",
       "*.supabase.co",
       "*.googleapis.com",
       "*.gstatic.com",
-      "*.firebaseio.com",
-      "*.firebasestorage.app",
-      "*.firebaseapp.com",
       "localhost"
     ]
   },
   "android": {
-    "allowMixedContent": false,
-    "backgroundColor": "#0b1b3a",
-    "webContentsDebuggingEnabled": false
-  },
-  "plugins": {
-    "SplashScreen": {
-      "launchShowDuration": 0,
-      "launchAutoHide": false,
-      "backgroundColor": "#0b1b3a",
-      "androidSplashResourceName": "splash",
-      "androidScaleType": "CENTER",
-      "showSpinner": false,
-      "splashFullScreen": true,
-      "splashImmersive": true,
-      "launchFadeOutDuration": 250
-    },
-    "StatusBar": {
-      "style": "DARK",
-      "backgroundColor": "#0b1b3a",
-      "overlaysWebView": false
-    },
-    "PushNotifications": {
-      "presentationOptions": [
-        "badge",
-        "sound",
-        "alert"
-      ]
-    },
-    "LocalNotifications": {
-      "smallIcon": "ic_stat_d4exam",
-      "iconColor": "#0b1b3a",
-      "sound": "default"
-    }
+    "allowMixedContent": true,
+    "backgroundColor": "#050b18",
+    "webContentsDebuggingEnabled": true
   }
 }
