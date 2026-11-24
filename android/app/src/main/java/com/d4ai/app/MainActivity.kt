@@ -32,10 +32,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     private lateinit var web: WebView
+    private var pendingWebPermissionRequest: PermissionRequest? = null
 
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
-    ) { }
+    ) { grants ->
+        val pending = pendingWebPermissionRequest ?: return@registerForActivityResult
+        if (grants.isNotEmpty() && grants.values.all { it }) {
+            pending.grant(pending.resources)
+        } else {
+            pending.deny()
+        }
+        pendingWebPermissionRequest = null
+    }
 
     @SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,14 +78,43 @@ class MainActivity : AppCompatActivity() {
 
         web.webChromeClient = object : WebChromeClient() {
             override fun onPermissionRequest(request: PermissionRequest?) {
-                // Never grant WebView permissions automatically at app startup.
-                // Feature screens must request the matching Android permission first.
-                request?.deny()
+                if (request == null) return
+                runOnUiThread {
+                    val needed = mutableListOf<String>()
+                    if (request.resources.contains(PermissionRequest.RESOURCE_VIDEO_CAPTURE) &&
+                        ContextCompat.checkSelfPermission(this@MainActivity, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
+                    ) needed.add(Manifest.permission.CAMERA)
+                    if (request.resources.contains(PermissionRequest.RESOURCE_AUDIO_CAPTURE) &&
+                        ContextCompat.checkSelfPermission(this@MainActivity, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED
+                    ) needed.add(Manifest.permission.RECORD_AUDIO)
+
+                    if (needed.isEmpty()) {
+                        request.grant(request.resources)
+                    } else {
+                        pendingWebPermissionRequest?.deny()
+                        pendingWebPermissionRequest = request
+                        permissionLauncher.launch(needed.distinct().toTypedArray())
+                    }
+                }
             }
         }
 
         web.webViewClient = object : WebViewClient() {
-            override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean = false
+            override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
+                val uri = request?.url ?: return false
+                val host = uri.host?.lowercase() ?: return true
+                val trusted = host == "d4ai-app.vercel.app" ||
+                    host.endsWith(".supabase.co") ||
+                    host == "accounts.google.com" ||
+                    host == "www.googleapis.com"
+                if (trusted) return false
+                return try {
+                    startActivity(Intent(Intent.ACTION_VIEW, uri))
+                    true
+                } catch (_: Exception) {
+                    true
+                }
+            }
 
             override fun onPageFinished(view: WebView?, url: String?) {
                 // Mark native shell so web skips second splash / pending spinner
