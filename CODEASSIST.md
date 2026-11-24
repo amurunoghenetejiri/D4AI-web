@@ -1,19 +1,34 @@
-# Code Assist — make D4AI RUN
+# D4AI — Code Assist Install (IMPORTANT)
 
-## Option A (best)
-1. Delete the old project from Code Assist
-2. Clone again: `https://github.com/amurunoghenetejiri/D4EXAM-D4AI.git`
-3. After clone, **File → Open** the folder named **`android`**  
-   Full path example: `.../codeassist/projects/D4EXAM-D4AI/android`
-4. Wait until the yellow banner **“Opened for editing only” disappears** and Gradle finishes
-5. Tap the green **▶ Run** — configuration must say **app**
+## Why you saw "Update not installed"
 
-## Option B
-Open the whole repo if Option A fails — root `settings.gradle` also includes `:app`.
+The old package id conflicted with a previous install (different signature / suffix).
+This build uses a **new** package id: **com.d4ai.assistant**
 
-## You must see
-- Module **app**
-- Launcher activity **SplashActivity**
-- applicationId **com.d4ai**
+That forces a fresh **Install**, not Update.
 
-If you still see “Nothing to run”, the IDE never loaded Gradle. Close project → Open **android** folder only → Sync.
+## Steps (do in order)
+
+1. On your phone: **Uninstall any old D4AI / D4EXAM** apps from Settings → Apps
+2. Pull latest code in Code Assist
+3. Open the **android** folder only
+4. Sync Gradle
+5. Run ▶ on your phone
+
+You should see **Install** (not Update). After install, **D4AI** appears in the app drawer.
+
+## Permissions requested
+
+On first open the app asks for:
+- Microphone
+- Camera
+- Notifications
+- Photos (if needed)
+- Display over other apps (system screen)
+- Modify system settings / brightness (system screen)
+
+## Package
+
+- applicationId: `com.d4ai.assistant`
+- App name: D4AI
+- Loads: https://d4ai-app.vercel.app
