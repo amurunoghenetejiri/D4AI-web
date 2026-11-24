@@ -36,6 +36,10 @@ jobs:
           # v3's old default also attempted to install the retired "tools" package.
           packages: "platform-tools"
 
+      - name: Generate D4AI Android launcher and splash icons
+        run: |
+          bash scripts/android-apply-icons.sh
+
       - name: Assemble D4AI debug APK
         run: |
           chmod +x ./gradlew
