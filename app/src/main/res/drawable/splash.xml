@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Native launch: navy + centered D4EXAM logo (matches APK branding splash) -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@color/splash_background" />
+    <item android:drawable="@color/d4ai_bg" />
     <item
         android:width="160dp"
         android:height="160dp"
         android:gravity="center"
-        android:drawable="@drawable/d4exam_splash_logo" />
+        android:drawable="@drawable/d4ai_logo" />
 </layer-list>

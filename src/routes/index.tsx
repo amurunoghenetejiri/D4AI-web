@@ -52,6 +52,7 @@ import { useSessionUser } from "@/lib/session";
 import {
   extractFactsFromMessage,
   memoryContextBlock,
+  getKnownName,
   updateChatSummary,
   loadMemory,
   loadProfile,
@@ -1596,7 +1597,24 @@ function D4AiPage() {
           /\b(what('?s| is) (your|ur) name|who are you|your name|ur name|who made you|who created you)\b/i.test(
             userText,
           );
+        const askMyName =
+          /\b(what('?s| is) my name|who am i|do you know (my|me)|remember (my )?name)\b/i.test(
+            userText,
+          );
         let full = "";
+        if (askMyName) {
+          const known = (typeof getKnownName === "function" ? getKnownName() : "") || nickname || "";
+          full = known
+            ? `Your name is ${known}. I remember you — how can I help, ${known.split(" ")[0]}?`
+            : "I don't have your name saved yet. Tell me your name and I'll remember it.";
+          ensureAssistant(full);
+          setStreaming(false);
+          setBusy(false);
+          setStatus(null);
+          window.clearInterval(thinkTimer);
+          try { updateChatSummary(userText, full); } catch {}
+          return;
+        }
         if (identityQ) {
           full =
             /who (made|created) you|who is your (ceo|creator|founder)/i.test(userText)

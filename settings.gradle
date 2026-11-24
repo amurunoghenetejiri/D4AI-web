@@ -1,3 +1,5 @@
 rootProject.name = "D4AI"
 include ':app'
+// Prefer android/app (canonical). If Code Assist opens repo root and expects app/,
+// it still works because we keep app/ resources in sync with android/app.
 project(':app').projectDir = file('android/app')
