@@ -1797,6 +1797,9 @@ function D4AiPage() {
 
         window.clearInterval(thinkTimer);
         setThoughtSeconds(Math.max(1, Math.round((Date.now() - thinkStartRef.current) / 1000)));
+        try {
+          if (body && full) updateChatSummary(body, full);
+        } catch {}
         setStreaming(false);
             } catch (e) {
         const msg = friendlyError(e instanceof Error ? e.message : "Failed to reach D4AI");
