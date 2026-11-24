@@ -1,4 +1,6 @@
-package com.d4exam.app;
+package com.d4ai.app;
+
+import android.Manifest;
 
 import android.app.Activity;
 import android.content.Context;
@@ -16,6 +18,10 @@ import android.provider.Settings;
 import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
 import android.widget.Toast;
+import android.speech.tts.TextToSpeech;
+import android.speech.tts.Voice;
+import java.util.Locale;
+import java.util.Set;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.util.List;
@@ -27,9 +33,19 @@ import java.util.List;
 public class DeviceControlBridge {
     private final Activity activity;
     private boolean torchOn = false;
+    private TextToSpeech tts;
+    private boolean ttsReady = false;
 
     public DeviceControlBridge(Activity activity) {
         this.activity = activity;
+        try {
+            tts = new TextToSpeech(activity.getApplicationContext(), status -> {
+                ttsReady = status == TextToSpeech.SUCCESS;
+                if (ttsReady) {
+                    try { tts.setLanguage(Locale.US); } catch (Exception ignored) {}
+                }
+            });
+        } catch (Exception ignored) {}
     }
 
     @JavascriptInterface
@@ -263,6 +279,143 @@ public class DeviceControlBridge {
             return arr.toString();
         } catch (Exception e) {
             return "[]";
+        }
+    }
+
+
+    @JavascriptInterface
+    public String speak(String text, float rate, float pitch) {
+        try {
+            if (tts == null || !ttsReady) return "{\"ok\":false,\"error\":\"tts not ready\"}";
+            String body = text == null ? "" : text.trim();
+            if (body.isEmpty()) return "{\"ok\":false,\"error\":\"empty\"}";
+            float r = rate <= 0 ? 1f : Math.max(0.5f, Math.min(1.5f, rate));
+            float p = pitch <= 0 ? 1f : Math.max(0.5f, Math.min(2f, pitch));
+            tts.setSpeechRate(r);
+            tts.setPitch(p);
+            tts.speak(body, TextToSpeech.QUEUE_FLUSH, null, "d4ai-" + System.currentTimeMillis());
+            return "{\"ok\":true}";
+        } catch (Exception e) {
+            return fail(e);
+        }
+    }
+
+    @JavascriptInterface
+    public String stopSpeak() {
+        try {
+            if (tts != null) tts.stop();
+            return "{\"ok\":true}";
+        } catch (Exception e) {
+            return fail(e);
+        }
+    }
+
+    @JavascriptInterface
+    public String listTtsVoices() {
+        try {
+            if (tts == null || !ttsReady) return "[]";
+            JSONArray arr = new JSONArray();
+            Set<Voice> voices = tts.getVoices();
+            if (voices == null) return "[]";
+            int n = 0;
+            for (Voice v : voices) {
+                if (v == null) continue;
+                String lang = v.getLocale() != null ? v.getLocale().toLanguageTag() : "";
+                if (!lang.toLowerCase(Locale.US).startsWith("en")) continue;
+                JSONObject o = new JSONObject();
+                o.put("name", v.getName());
+                o.put("locale", lang);
+                o.put("quality", v.getQuality());
+                arr.put(o);
+                if (++n >= 40) break;
+            }
+            return arr.toString();
+        } catch (Exception e) {
+            return "[]";
+        }
+    }
+
+    @JavascriptInterface
+    public String setTtsVoice(String name) {
+        try {
+            if (tts == null || !ttsReady || name == null) return "{\"ok\":false}";
+            Set<Voice> voices = tts.getVoices();
+            if (voices == null) return "{\"ok\":false}";
+            String want = name.toLowerCase(Locale.US);
+            for (Voice v : voices) {
+                if (v.getName() != null && v.getName().toLowerCase(Locale.US).contains(want)) {
+                    tts.setVoice(v);
+                    return "{\"ok\":true,\"name\":\"" + v.getName().replace("\"","'") + "\"}";
+                }
+            }
+            return "{\"ok\":false}";
+        } catch (Exception e) {
+            return fail(e);
+        }
+    }
+
+
+    @JavascriptInterface
+    public String requestOverlayPermission() {
+        try {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                if (!Settings.canDrawOverlays(activity)) {
+                    Intent i = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                            Uri.parse("package:" + activity.getPackageName()));
+                    i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    activity.startActivity(i);
+                    return "{\"ok\":true,\"opened\":true}";
+                }
+                return "{\"ok\":true,\"granted\":true}";
+            }
+            return "{\"ok\":true,\"granted\":true}";
+        } catch (Exception e) {
+            return fail(e);
+        }
+    }
+
+    @JavascriptInterface
+    public String requestWriteSettingsPermission() {
+        try {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                if (!Settings.System.canWrite(activity)) {
+                    Intent i = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);
+                    i.setData(Uri.parse("package:" + activity.getPackageName()));
+                    i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    activity.startActivity(i);
+                    return "{\"ok\":true,\"opened\":true}";
+                }
+                return "{\"ok\":true,\"granted\":true}";
+            }
+            return "{\"ok\":true,\"granted\":true}";
+        } catch (Exception e) {
+            return fail(e);
+        }
+    }
+
+    @JavascriptInterface
+    public String canDrawOverlays() {
+        try {
+            boolean ok = true;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                ok = Settings.canDrawOverlays(activity);
+            }
+            return "{\"ok\":true,\"granted\":" + ok + "}";
+        } catch (Exception e) {
+            return fail(e);
+        }
+    }
+
+    @JavascriptInterface
+    public String openAppInfo() {
+        try {
+            Intent i = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+            i.setData(Uri.parse("package:" + activity.getPackageName()));
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            activity.startActivity(i);
+            return "{\"ok\":true}";
+        } catch (Exception e) {
+            return fail(e);
         }
     }
 

@@ -116,31 +116,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun requestRuntimePermissions() {
-        val needed = mutableListOf<String>()
-        val candidates = mutableListOf(
-            Manifest.permission.RECORD_AUDIO,
-            Manifest.permission.CAMERA,
-            Manifest.permission.VIBRATE,
-            Manifest.permission.READ_CONTACTS,
-            Manifest.permission.CALL_PHONE,
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.BLUETOOTH_CONNECT,
-            Manifest.permission.BLUETOOTH_SCAN,
-            Manifest.permission.READ_PHONE_STATE,
-            Manifest.permission.SEND_SMS,
-            Manifest.permission.READ_SMS,
-            Manifest.permission.RECEIVE_SMS,
-            Manifest.permission.READ_CALENDAR,
-            Manifest.permission.WRITE_CALENDAR,
-        )
-        if (Build.VERSION.SDK_INT >= 33) {
-            candidates.add(Manifest.permission.POST_NOTIFICATIONS)
-            candidates.add(Manifest.permission.READ_MEDIA_IMAGES)
-            candidates.add(Manifest.permission.READ_MEDIA_VIDEO)
-            candidates.add(Manifest.permission.READ_MEDIA_AUDIO)
-            candidates.add(Manifest.permission.NEARBY_WIFI_DEVICES)
-        } else {
+        try {
+            val need = mutableListOf<String>()
+            if (Build.VERSION.SDK_INT >= 33) {
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                    != PackageManager.PERMISSION_GRANTED) {
+                    need.add(Manifest.permission.POST_NOTIFICATIONS)
+                }
+            }
+            if (need.isNotEmpty()) permissionLauncher.launch(need.toTypedArray())
+        } catch (_: Exception) { }
+    } else {
             candidates.add(Manifest.permission.READ_EXTERNAL_STORAGE)
             if (Build.VERSION.SDK_INT <= 28) {
                 candidates.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)

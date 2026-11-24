@@ -230,16 +230,16 @@ const VOICE_KEY = "d4ai_voice_v2";
 const SILENCE_MS = 1200;
 
 type VoicePreset =
-  | "ada"
-  | "chidi"
-  | "tunde"
-  | "amaka"
-  | "ngozi"
-  | "kola"
-  | "funke"
-  | "robo"
-  | "nova"
-  | "baritone";
+  | "luna"
+  | "orion"
+  | "asteria"
+  | "thalia"
+  | "andromeda"
+  | "atlas"
+  | "helios"
+  | "callista"
+  | "draco"
+  | "lyra";
 
 type VoiceChar = {
   id: VoicePreset;
@@ -247,24 +247,26 @@ type VoiceChar = {
   title: string;
   vibe: string;
   emoji: string;
-  file: string;
   sample: string;
+  gender: "female" | "male";
   rate: number;
   pitch: number;
   seVoice: string;
+  file?: string;
 };
 
+/** Deepgram Aura-2 speakers via Cloudflare — exact 10 voices */
 const VOICE_CHARS: VoiceChar[] = [
-  { id: "ada", name: "Ada", title: "Female · Clear", vibe: "Clear British female", emoji: "👩", file: "ceo_ref.wav", sample: "Hi, I'm Ada. Your clear and friendly study companion.", rate: 1.06, pitch: 1.12, seVoice: "Amy" },
-  { id: "chidi", name: "Chidi", title: "Male · Warm", vibe: "Warm American male", emoji: "👨", file: "ceo_ref.wav", sample: "Hello, I'm Chidi. Warm, natural, and ready to help.", rate: 1.0, pitch: 0.95, seVoice: "Brian" },
-  { id: "tunde", name: "Tunde", title: "Male · Deep", vibe: "Deep resonant male", emoji: "🗣️", file: "titan_bass_ref.wav", sample: "I'm Tunde. Deep voice, steady and strong.", rate: 0.88, pitch: 0.72, seVoice: "Matthew" },
-  { id: "amaka", name: "Amaka", title: "Female · Bright", vibe: "Bright Jenny female", emoji: "✨", file: "lovelle_romantic_ref.wav", sample: "Hey! I'm Amaka — bright, upbeat, and ready to learn!", rate: 1.12, pitch: 1.2, seVoice: "Joanna" },
-  { id: "ngozi", name: "Ngozi", title: "Female · Soft", vibe: "Soft calm British", emoji: "🌿", file: "whisper_soft_ref.wav", sample: "Hello, I'm Ngozi. Soft, calm, and gentle.", rate: 0.92, pitch: 1.08, seVoice: "Emma" },
-  { id: "kola", name: "Kola", title: "Male · Firm", vibe: "Firm Christopher male", emoji: "📘", file: "orion_wise_ref.wav", sample: "I'm Kola. Firm, clear, and focused on your success.", rate: 0.96, pitch: 0.88, seVoice: "Joey" },
-  { id: "funke", name: "Funke", title: "Anime · Cute", vibe: "Young anime-style", emoji: "🎌", file: "bubbly_cartoon_ref.wav", sample: "Hi hi! I'm Funke — cute anime energy for studying!", rate: 1.18, pitch: 1.35, seVoice: "Ivy" },
-  { id: "robo", name: "Robo", title: "Robot · AI", vibe: "Davis robotic male", emoji: "🤖", file: "robo_metal_ref.wav", sample: "System online. I am Robo. Precision mode activated.", rate: 0.85, pitch: 0.55, seVoice: "Justin" },
-  { id: "nova", name: "Nova", title: "Alien · Sweet", vibe: "Australian Natasha", emoji: "👽", file: "nova_alien_ref.wav", sample: "Greetings. I am Nova, from beyond the stars.", rate: 1.08, pitch: 1.28, seVoice: "Salli" },
-  { id: "baritone", name: "Baritone", title: "Male · Narrator", vibe: "British Thomas narrator", emoji: "🎙️", file: "baritone_deep_ref.wav", sample: "I'm Baritone. A rich narrator voice for long sessions.", rate: 0.9, pitch: 0.68, seVoice: "Brian" },
+  { id: "luna", name: "Luna", title: "Female · Soft · Calm", vibe: "Default soft calm voice", emoji: "🌙", sample: "Hi, I'm Luna, your calm D4AI companion.", rate: 1.0, pitch: 1.05, seVoice: "Samantha", gender: "female" },
+  { id: "orion", name: "Orion", title: "Male · Deep · Serious", vibe: "Story and news", emoji: "🌌", sample: "I'm Orion. Deep, serious, ready for the news.", rate: 0.95, pitch: 0.85, seVoice: "Daniel", gender: "male" },
+  { id: "asteria", name: "Asteria", title: "Female · Young · Happy", vibe: "Friendly chat", emoji: "✨", sample: "Hey! I'm Asteria — young, happy, and friendly.", rate: 1.08, pitch: 1.15, seVoice: "Karen", gender: "female" },
+  { id: "thalia", name: "Thalia", title: "Female · Clear · Teacher", vibe: "Teaching and explaining", emoji: "📚", sample: "I'm Thalia. Clear teaching voice for learning.", rate: 1.0, pitch: 1.05, seVoice: "Moira", gender: "female" },
+  { id: "andromeda", name: "Andromeda", title: "Female · Professional", vibe: "Business", emoji: "💼", sample: "Andromeda here — professional and precise.", rate: 0.98, pitch: 1.0, seVoice: "Samantha", gender: "female" },
+  { id: "atlas", name: "Atlas", title: "Male · Strong · Confident", vibe: "Motivation", emoji: "💪", sample: "I'm Atlas. Strong, confident motivation.", rate: 0.95, pitch: 0.8, seVoice: "Alex", gender: "male" },
+  { id: "helios", name: "Helios", title: "Male · Friendly · Warm", vibe: "Casual talk", emoji: "☀️", sample: "Helios here — warm and friendly for casual talk.", rate: 1.02, pitch: 0.95, seVoice: "Daniel", gender: "male" },
+  { id: "callista", name: "Callista", title: "Female · Warm · Sweet", vibe: "Story and emotional", emoji: "🌸", sample: "I'm Callista. Warm, sweet, emotional stories.", rate: 1.0, pitch: 1.1, seVoice: "Victoria", gender: "female" },
+  { id: "draco", name: "Draco", title: "Male · Deep · Trailer", vibe: "Drama", emoji: "🎬", sample: "Draco. Deep movie-trailer drama voice.", rate: 0.9, pitch: 0.75, seVoice: "Alex", gender: "male" },
+  { id: "lyra", name: "Lyra", title: "Female · Sweet · Assistant", vibe: "Assistant", emoji: "🤖", sample: "I'm Lyra, your sweet assistant voice.", rate: 1.05, pitch: 1.12, seVoice: "Samantha", gender: "female" },
 ];
 
 function loadVoicePreset(): VoicePreset {
@@ -272,8 +274,7 @@ function loadVoicePreset(): VoicePreset {
     const v = localStorage.getItem(VOICE_KEY);
     if (v && VOICE_CHARS.some((c) => c.id === v)) return v as VoicePreset;
     // legacy ids → human voices
-    if (v === "ceo" || v === "male" || v === "rex" || v === "atlas" || v === "titan" || v === "baritone" || v === "orion" || v === "cosmo" || v === "astro" || v === "robo") return "chidi";
-    if (v === "lovelle" || v === "female" || v === "luna" || v === "aria" || v === "bella" || v === "whisper" || v === "nova" || v === "bubbly" || v === "chippy") return "ada";
+    return "luna";
     if (v === "deep") return "tunde";
     if (v === "soft") return "ngozi";
     if (v === "auto") return "ada";
@@ -295,6 +296,33 @@ function nativeSpeak(text: string, rate: number, pitch: number): boolean {
     }
   } catch {}
   return false;
+}
+
+
+/** Prefer Cloudflare Aura-2 TTS; fall back to device SpeechSynthesis. */
+async function speakAura2(text: string, voice: VoicePreset): Promise<boolean> {
+  try {
+    const res = await fetch("/api/d4ai/tts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: text.slice(0, 3500), voice }),
+    });
+    if (!res.ok) return false;
+    const ct = res.headers.get("content-type") || "";
+    if (ct.includes("application/json")) return false;
+    const blob = await res.blob();
+    if (!blob || blob.size < 64) return false;
+    const url = URL.createObjectURL(blob);
+    await new Promise<void>((resolve, reject) => {
+      const a = new Audio(url);
+      a.onended = () => { try { URL.revokeObjectURL(url); } catch {} resolve(); };
+      a.onerror = () => { try { URL.revokeObjectURL(url); } catch {} reject(); };
+      a.play().catch(reject);
+    });
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function pickVoice(preset: VoicePreset): SpeechSynthesisVoice | null {
@@ -609,15 +637,20 @@ function speakText(
     } catch {}
   };
 
-  const fetchPiece = async (piece: string): Promise<string | null> => {
+    const fetchPiece = async (piece: string): Promise<string | null> => {
     try {
-      const res = await fetch(ttsUrl(piece, char.id), {
+      // Cloudflare Aura-2 TTS (POST). Offline → null → device TTS fallback.
+      const res = await fetch("/api/d4ai/tts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         credentials: "same-origin",
-        cache: "no-store",
+        body: JSON.stringify({ text: piece, voice: char.id }),
       });
       if (!res.ok) return null;
+      const ct = res.headers.get("content-type") || "";
+      if (ct.includes("application/json")) return null;
       const blob = await res.blob();
-      if (blob.size < 200) return null;
+      if (!blob || blob.size < 80) return null;
       return URL.createObjectURL(blob);
     } catch {
       return null;
@@ -1083,6 +1116,7 @@ function D4AiPage() {
   const [welcomeDone, setWelcomeDone] = useState(false);
   const thinkStartRef = useRef<number>(0);
   const [status, setStatus] = useState<string | null>(null);
+  const [providerLabel, setProviderLabel] = useState<"cloudflare" | "fallback" | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [imageB64, setImageB64] = useState<string | null>(null);
@@ -3170,7 +3204,7 @@ function D4AiPage() {
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
               {VOICE_CHARS.map((c) => {
                 const active = voicePreset === c.id;
-                const isCeo = c.id === "ceo";
+                const isActiveVoice = c.id === voicePreset;
                 return (
                   <button
                     key={c.id}
@@ -3179,7 +3213,7 @@ function D4AiPage() {
                       setVoicePreset(c.id);
                       try {
                         localStorage.setItem(VOICE_KEY, c.id);
-                        localStorage.setItem("d4ai-voice-file", c.file);
+                        localStorage.setItem("d4ai-voice-file", c.id);
                       } catch {}
                       setToast(`${c.emoji} ${c.name} — preview`);
                       stopSpeaking();
@@ -3198,13 +3232,13 @@ function D4AiPage() {
                     }}
                     className={cn(
                       "flex flex-col items-center gap-1.5 rounded-2xl border p-3 text-center transition active:scale-[0.98]",
-                      active && isCeo
+                      active && isActiveVoice
                         ? "border-amber-400 bg-amber-500/20 ring-2 ring-amber-400/60"
                         : active
                           ? dark
                             ? "border-cyan-400/60 bg-cyan-500/15 ring-1 ring-cyan-400/40"
                             : "border-blue-400 bg-blue-50 ring-1 ring-blue-200"
-                          : isCeo
+                          : isActiveVoice
                             ? "border-amber-400/50 bg-amber-500/10"
                             : dark
                               ? "border-white/10 bg-white/5 hover:bg-white/10"
