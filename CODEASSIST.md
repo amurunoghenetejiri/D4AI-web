@@ -1,21 +1,17 @@
-# Run D4AI on Code Assist
+# D4AI — Code Assist / Android Studio
 
-## MUST DO THIS
-1. Clone / pull **D4EXAM-D4AI**
-2. In Code Assist: **Open folder → select the `android` directory only**
-   (path like `.../D4EXAM-D4AI/android`)
-3. Wait for Gradle sync
-4. Run configuration: **app**
-5. Install on device
+## Open the REPO ROOT (now works)
+The Android **`app`** module is at the **repository root**.
 
-Do **not** open the repo root (it has a website `package.json` and confuses Code Assist → “Nothing to run”).
+1. Pull latest `main`
+2. Open project folder **D4EXAM-D4AI** (repo root)
+3. Code Assist should list module **app**
+4. Run **app**
 
-## What builds
-- Module: `:app`
+### If still “Nothing to run”
+1. Close project
+2. Open **only** the `android` folder inside the repo
+3. Sync Gradle → Run **app**
+
 - applicationId: `com.d4ai`
-- SplashActivity → MainActivity (loads https://d4ai-app.vercel.app/)
-
-## If sync fails
-- JDK 17
-- Internet for Gradle deps
-- File → Invalidate caches / re-sync Gradle
+- Splash → MainActivity (WebView to https://d4ai-app.vercel.app/)

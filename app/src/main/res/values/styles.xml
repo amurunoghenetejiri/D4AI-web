@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="android:statusBarColor">@color/d4ai_bg</item>
+        <item name="android:navigationBarColor">@color/d4ai_bg</item>
+        <item name="android:windowBackground">@color/d4ai_bg</item>
+        <item name="colorPrimary">@color/d4ai_cyan</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+</resources>

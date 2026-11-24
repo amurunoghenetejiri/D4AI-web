@@ -243,16 +243,16 @@ type VoiceChar = {
 };
 
 const VOICE_CHARS: VoiceChar[] = [
-  { id: "ada", name: "Ada", title: "Female · Clear", vibe: "Clear British female", emoji: "👩", file: "ceo_ref.wav", sample: "Hi, I'm Ada. Your clear and friendly study companion.", rate: 1.05, pitch: 1.05, seVoice: "Amy" },
-  { id: "chidi", name: "Chidi", title: "Male · Warm", vibe: "Warm American male", emoji: "👨", file: "ceo_ref.wav", sample: "Hello, I'm Chidi. Warm, natural, and ready to help.", rate: 1.0, pitch: 1.0, seVoice: "Brian" },
-  { id: "tunde", name: "Tunde", title: "Male · Deep", vibe: "Deep resonant male", emoji: "🗣️", file: "titan_bass_ref.wav", sample: "I'm Tunde. Deep voice, steady and strong.", rate: 0.95, pitch: 0.9, seVoice: "Matthew" },
-  { id: "amaka", name: "Amaka", title: "Female · Bright", vibe: "Bright Jenny female", emoji: "✨", file: "lovelle_romantic_ref.wav", sample: "Hey! I'm Amaka — bright, upbeat, and ready to learn!", rate: 1.08, pitch: 1.05, seVoice: "Joanna" },
-  { id: "ngozi", name: "Ngozi", title: "Female · Soft", vibe: "Soft calm British", emoji: "🌿", file: "whisper_soft_ref.wav", sample: "Hello, I'm Ngozi. Soft, calm, and gentle.", rate: 0.98, pitch: 1.02, seVoice: "Emma" },
-  { id: "kola", name: "Kola", title: "Male · Firm", vibe: "Firm Christopher male", emoji: "📘", file: "orion_wise_ref.wav", sample: "I'm Kola. Firm, clear, and focused on your success.", rate: 0.98, pitch: 0.95, seVoice: "Matthew" },
-  { id: "funke", name: "Funke", title: "Anime · Cute", vibe: "Young anime-style", emoji: "🎌", file: "bubbly_cartoon_ref.wav", sample: "Hi hi! I'm Funke — cute anime energy for studying!", rate: 1.12, pitch: 1.15, seVoice: "Ivy" },
-  { id: "robo", name: "Robo", title: "Robot · AI", vibe: "Davis robotic male", emoji: "🤖", file: "robo_metal_ref.wav", sample: "System online. I am Robo. Precision mode activated.", rate: 0.92, pitch: 0.85, seVoice: "Justin" },
-  { id: "nova", name: "Nova", title: "Alien · Sweet", vibe: "Australian Natasha", emoji: "👽", file: "nova_alien_ref.wav", sample: "Greetings. I am Nova, from beyond the stars.", rate: 1.05, pitch: 1.1, seVoice: "Salli" },
-  { id: "baritone", name: "Baritone", title: "Male · Narrator", vibe: "British Thomas narrator", emoji: "🎙️", file: "baritone_deep_ref.wav", sample: "I'm Baritone. A rich narrator voice for long sessions.", rate: 0.95, pitch: 0.9, seVoice: "Brian" },
+  { id: "ada", name: "Ada", title: "Female · Clear", vibe: "Clear British female", emoji: "👩", file: "ceo_ref.wav", sample: "Hi, I'm Ada. Your clear and friendly study companion.", rate: 1.06, pitch: 1.12, seVoice: "Amy" },
+  { id: "chidi", name: "Chidi", title: "Male · Warm", vibe: "Warm American male", emoji: "👨", file: "ceo_ref.wav", sample: "Hello, I'm Chidi. Warm, natural, and ready to help.", rate: 1.0, pitch: 0.95, seVoice: "Brian" },
+  { id: "tunde", name: "Tunde", title: "Male · Deep", vibe: "Deep resonant male", emoji: "🗣️", file: "titan_bass_ref.wav", sample: "I'm Tunde. Deep voice, steady and strong.", rate: 0.88, pitch: 0.72, seVoice: "Matthew" },
+  { id: "amaka", name: "Amaka", title: "Female · Bright", vibe: "Bright Jenny female", emoji: "✨", file: "lovelle_romantic_ref.wav", sample: "Hey! I'm Amaka — bright, upbeat, and ready to learn!", rate: 1.12, pitch: 1.2, seVoice: "Joanna" },
+  { id: "ngozi", name: "Ngozi", title: "Female · Soft", vibe: "Soft calm British", emoji: "🌿", file: "whisper_soft_ref.wav", sample: "Hello, I'm Ngozi. Soft, calm, and gentle.", rate: 0.92, pitch: 1.08, seVoice: "Emma" },
+  { id: "kola", name: "Kola", title: "Male · Firm", vibe: "Firm Christopher male", emoji: "📘", file: "orion_wise_ref.wav", sample: "I'm Kola. Firm, clear, and focused on your success.", rate: 0.96, pitch: 0.88, seVoice: "Joey" },
+  { id: "funke", name: "Funke", title: "Anime · Cute", vibe: "Young anime-style", emoji: "🎌", file: "bubbly_cartoon_ref.wav", sample: "Hi hi! I'm Funke — cute anime energy for studying!", rate: 1.18, pitch: 1.35, seVoice: "Ivy" },
+  { id: "robo", name: "Robo", title: "Robot · AI", vibe: "Davis robotic male", emoji: "🤖", file: "robo_metal_ref.wav", sample: "System online. I am Robo. Precision mode activated.", rate: 0.85, pitch: 0.55, seVoice: "Justin" },
+  { id: "nova", name: "Nova", title: "Alien · Sweet", vibe: "Australian Natasha", emoji: "👽", file: "nova_alien_ref.wav", sample: "Greetings. I am Nova, from beyond the stars.", rate: 1.08, pitch: 1.28, seVoice: "Salli" },
+  { id: "baritone", name: "Baritone", title: "Male · Narrator", vibe: "British Thomas narrator", emoji: "🎙️", file: "baritone_deep_ref.wav", sample: "I'm Baritone. A rich narrator voice for long sessions.", rate: 0.9, pitch: 0.68, seVoice: "Brian" },
 ];
 
 function loadVoicePreset(): VoicePreset {
@@ -280,19 +280,43 @@ function pickVoice(preset: VoicePreset): SpeechSynthesisVoice | null {
     const en = voices.filter((v) => /en[-_]?/i.test(v.lang));
     const pool = en.length ? en : [...voices];
     const char = getVoiceChar(preset);
+
+    // Preferred engine voice name fragments per character (Android + desktop)
+    const prefer: Record<string, RegExp> = {
+      ada: /amy|samantha|karen|zira|female|google uk english female|en-gb.*female/i,
+      chidi: /brian|david|daniel|mark|google us english male|en-us.*male/i,
+      tunde: /matthew|george|fred|thomas|baritone|en-gb.*male|uk english male/i,
+      amaka: /joanna|jenny|aria|michelle|salli|us english female/i,
+      ngozi: /emma|serena|libby|sonia|fiona|moira|uk english female/i,
+      kola: /joey|eric|ryan|guy|christopher|us english male/i,
+      funke: /ivy|kathy|princess|child|kid|young/i,
+      robo: /justin|robot|reed|compact|novelty/i,
+      nova: /salli|natasha|tessa|australian|en-au/i,
+      baritone: /brian|thomas|daniel|ravi|en-gb.*male/i,
+    };
+    const re = prefer[char.id];
+    if (re) {
+      const hit = pool.find((v) => re.test(v.name) || re.test(v.lang + " " + v.name));
+      if (hit) return hit;
+    }
+
     const femaleIds = new Set(["ada", "amaka", "ngozi", "funke", "nova"]);
     const preferFemale = femaleIds.has(char.id);
     const female = pool.filter((v) =>
-      /female|samantha|karen|zira|amy|emma|salli|ivy|joanna|woman|girl|fiona|moira|veena|tessa|sonia|libby|natasha|aria|michelle/i.test(v.name),
+      /female|samantha|karen|zira|amy|emma|salli|ivy|joanna|woman|girl|fiona|moira|veena|tessa|sonia|libby|natasha|aria|michelle/i.test(
+        v.name,
+      ),
     );
     const male = pool.filter((v) =>
-      /male|david|daniel|mark|george|fred|brian|matthew|joey|alex|thomas|ravi|man|guy|eric|ryan|christopher|davis|steffan|thomas/i.test(v.name),
+      /male|david|daniel|mark|george|fred|brian|matthew|joey|alex|thomas|ravi|man|guy|eric|ryan|christopher|davis|steffan/i.test(
+        v.name,
+      ),
     );
-    const list = preferFemale ? (female.length ? female : pool) : (male.length ? male : pool);
-    // Stable unique pick per character id
+    const list = preferFemale ? (female.length ? female : pool) : male.length ? male : pool;
     let hash = 0;
     for (let i = 0; i < char.id.length; i++) hash = (hash * 31 + char.id.charCodeAt(i)) | 0;
-    const idx = Math.abs(hash) % list.length;
+    // Spread picks across the list so characters don't collapse to one voice
+    const idx = Math.abs(hash + char.id.length * 17) % list.length;
     return list[idx] || pool[0] || null;
   } catch {
     return null;
