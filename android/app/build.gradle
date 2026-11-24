@@ -2,23 +2,22 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 android {
-    compileSdkVersion 33
+    compileSdkVersion 34
     namespace "com.d4exam.app"
 
     defaultConfig {
-        // Fresh package so Code Assist always Installs (not stuck Update)
-        applicationId "com.d4tech.d4ai"
+        // Brand-new id so Code Assist does a clean INSTALL (not a failed Update)
+        applicationId "com.d4ai.assistant"
         minSdkVersion 24
-        targetSdkVersion 33
-        versionCode 12
-        versionName "1.6.0"
+        targetSdkVersion 34
+        versionCode 20
+        versionName "2.0.0"
     }
 
     buildTypes {
         debug {
             minifyEnabled false
-            applicationIdSuffix ".codeassist"
-            versionNameSuffix "-debug"
+            // NO applicationIdSuffix — suffix caused Update conflicts
         }
         release {
             minifyEnabled false
@@ -34,12 +33,18 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+
+    packagingOptions {
+        resources {
+            excludes += ['META-INF/DEPENDENCIES', 'META-INF/LICENSE', 'META-INF/LICENSE.txt', 'META-INF/NOTICE']
+        }
+    }
 }
 
 dependencies {
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'androidx.core:core-ktx:1.10.1'
+    implementation 'androidx.core:core-ktx:1.12.0'
     implementation 'androidx.webkit:webkit:1.8.0'
-    implementation 'androidx.activity:activity-ktx:1.7.2'
+    implementation 'androidx.activity:activity-ktx:1.8.2'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 }
