@@ -98,7 +98,7 @@ fi
 # Native launch splash logo (navy screen + centered brand mark from first frame)
 # Written AFTER drawable XML cleanup in CI so PNG is not deleted by basename loop.
 for dest in \
-  "android/app/src/main/res/drawable/d4ai_splash_logo.png" \
+  "android/app/src/main/res/drawable-nodpi/d4ai_logo.png" \
   "native-android/app/src/main/res/drawable/d4exam_splash_logo.png"; do
   mkdir -p "$(dirname "$dest")"
   if resize_icon "$ICON_SRC" 240 "$dest" 90; then
