@@ -44,9 +44,6 @@ class MainActivity : AppCompatActivity() {
         window.statusBarColor = Color.parseColor("#050b18")
         window.navigationBarColor = Color.parseColor("#050b18")
 
-        requestRuntimePermissions()
-        maybeRequestSpecialPermissions()
-
         web = WebView(this).apply {
             setBackgroundColor(Color.parseColor("#050b18"))
         }
@@ -72,12 +69,9 @@ class MainActivity : AppCompatActivity() {
 
         web.webChromeClient = object : WebChromeClient() {
             override fun onPermissionRequest(request: PermissionRequest?) {
-                // Grant mic/camera to WebView when user already allowed app-level perms
-                try {
-                    request?.grant(request.resources)
-                } catch (_: Exception) {
-                    request?.deny()
-                }
+                // Never grant WebView permissions automatically at app startup.
+                // Feature screens must request the matching Android permission first.
+                request?.deny()
             }
         }
 
