@@ -6,21 +6,23 @@ android {
     namespace "com.d4exam.app"
 
     defaultConfig {
-        // Unique id so install is NEW (not stuck "Update" from old signature mismatch)
+        // Fresh package so Code Assist always Installs (not stuck Update)
         applicationId "com.d4tech.d4ai"
         minSdkVersion 24
         targetSdkVersion 33
-        versionCode 10
-        versionName "1.5.0"
+        versionCode 12
+        versionName "1.6.0"
     }
 
     buildTypes {
+        debug {
+            minifyEnabled false
+            applicationIdSuffix ".codeassist"
+            versionNameSuffix "-debug"
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
-        debug {
-            minifyEnabled false
         }
     }
 

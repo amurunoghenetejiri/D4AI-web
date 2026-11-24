@@ -65,22 +65,26 @@ import {
 } from "@/components/d4ai/D4AiConnections";
 
 
-async function generateD4Image(prompt: string): Promise<{ url: string; model: string }> {
+async function generateD4Image(prompt: string): Promise<{ url: string; model: string; provider?: string }> {
   try {
     const res = await fetch("/api/d4ai/image", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt, width: 1024, height: 1280 }),
+      body: JSON.stringify({ prompt, width: 1024, height: 1024 }),
     });
     if (res.ok) {
-      const data = (await res.json()) as { url?: string; model?: string };
-      if (data.url) return { url: data.url, model: data.model || "flux" };
+      const data = (await res.json()) as { url?: string; model?: string; provider?: string };
+      if (data.url) return { url: data.url, model: data.model || "flux", provider: data.provider };
     }
   } catch {
-    /* fall through */
+    /* fall through to client pollinations */
   }
   const model = pickImageModel(prompt);
-  return { url: pollinationsImageUrl(prompt, { model, width: 1024, height: 1280, enhance: true }), model };
+  return {
+    url: pollinationsImageUrl(prompt, { model, width: 1024, height: 1024, enhance: true }),
+    model,
+    provider: "pollinations",
+  };
 }
 
 export const Route = createFileRoute("/")({
@@ -1083,6 +1087,7 @@ function D4AiPage() {
   const [error, setError] = useState<string | null>(null);
   const [imageB64, setImageB64] = useState<string | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [viewerImage, setViewerImage] = useState<{ url: string; caption?: string } | null>(null);
   const [docText, setDocText] = useState<string | null>(null);
   const [docName, setDocName] = useState<string | null>(null);
   const [voiceOn, setVoiceOn] = useState(false);
@@ -1514,7 +1519,7 @@ function D4AiPage() {
           {
             id: aid,
             role: "assistant",
-            content: `Here's your image for: **${prompt}**\n\n_Powered by Pollinations ${imgModel}_`,
+            content: `Here's what I created for you:\n\n**${prompt}**`,
             imageUrl: url,
             createdAt: Date.now(),
           },
@@ -2342,14 +2347,21 @@ function D4AiPage() {
                   <img src={m.imagePreview} alt="" className="mb-2 max-h-48 w-full rounded-xl object-cover" />
                 ) : null}
                 {m.imageUrl ? (
-                  <a href={m.imageUrl} target="_blank" rel="noreferrer" className="mb-2 block overflow-hidden rounded-xl">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setViewerImage({ url: m.imageUrl!, caption: m.content });
+                    }}
+                    className="mb-2 block w-full overflow-hidden rounded-xl text-left"
+                  >
                     <img
                       src={m.imageUrl}
                       alt="Generated"
                       className="max-h-[420px] w-full object-cover"
                       loading="lazy"
                     />
-                  </a>
+                  </button>
                 ) : null}
                 {m.docName ? (
                   <p className="mb-1 flex items-center gap-1 text-xs opacity-90">
@@ -3451,6 +3463,87 @@ function D4AiPage() {
       ) : null}
 
       {/* ---------- Toast ---------- */}
+      
+      {/* In-chat image viewer — no external tab */}
+      {viewerImage ? (
+        <div
+          className="fixed inset-0 z-[200] flex flex-col bg-black/95"
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className="flex items-center justify-between gap-2 px-3 py-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
+            <button
+              type="button"
+              onClick={() => setViewerImage(null)}
+              className="rounded-full bg-white/10 px-3 py-1.5 text-sm text-white"
+            >
+              Close
+            </button>
+            <span className="text-xs text-white/60">D4AI image</span>
+            <span className="w-16" />
+          </div>
+          <div className="flex flex-1 items-center justify-center overflow-auto px-3">
+            <img
+              src={viewerImage.url}
+              alt="Preview"
+              className="max-h-full max-w-full rounded-xl object-contain"
+            />
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-2 border-t border-white/10 px-3 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+            <button
+              type="button"
+              className="rounded-full bg-cyan-500/20 px-4 py-2 text-sm font-semibold text-cyan-100 ring-1 ring-cyan-400/40"
+              onClick={async () => {
+                try {
+                  const a = document.createElement("a");
+                  a.href = viewerImage.url;
+                  a.download = `d4ai-${Date.now()}.png`;
+                  a.click();
+                  setToast("Saving image…");
+                } catch {
+                  setToast("Could not save — long-press the image instead");
+                }
+              }}
+            >
+              Save
+            </button>
+            <button
+              type="button"
+              className="rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white ring-1 ring-white/20"
+              onClick={async () => {
+                try {
+                  if (navigator.share) {
+                    const res = await fetch(viewerImage.url);
+                    const blob = await res.blob();
+                    const file = new File([blob], "d4ai.png", { type: blob.type || "image/png" });
+                    await navigator.share({ files: [file], title: "D4AI image" });
+                  } else {
+                    await navigator.clipboard.writeText(viewerImage.url);
+                    setToast("Image link copied");
+                  }
+                } catch {
+                  setToast("Share cancelled");
+                }
+              }}
+            >
+              Share
+            </button>
+            <button
+              type="button"
+              className="rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white ring-1 ring-white/20"
+              onClick={() => {
+                setInput((prev) => (prev ? prev : "Edit this image: make it "));
+                setViewerImage(null);
+                setTab("chat");
+                setToast("Describe the changes you want");
+              }}
+            >
+              Edit
+            </button>
+          </div>
+        </div>
+      ) : null}
+
       {toast ? (
         <div className="pointer-events-none absolute bottom-28 left-1/2 z-[95] -translate-x-1/2">
           <div className={cn("rounded-full px-4 py-2 text-xs font-semibold shadow-xl", dark ? "bg-[#0e2038] text-cyan-200 ring-1 ring-cyan-400/30" : "bg-slate-900 text-white")}>
