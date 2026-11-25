@@ -1,76 +1,74 @@
-/**
- * Pollinations AI — free image generation (no API key required).
- * Primary model: flux (sharp). Humans → flux-realism.
- * Docs: https://pollinations.ai
- */
+/** D4AI brain — Pollinations "openai" model for text, reasoning and vision. */
 
-export type ImageGenOpts = {
-  width?: number;
-  height?: number;
-  model?: "flux" | "flux-realism" | "turbo" | "gptimage";
-  seed?: number;
-  enhance?: boolean;
-};
+const SYSTEM = `You are D4AI — a personal AI assistant by D4TECH (Creating Solutions, Innovating Lives).
+Creator: Amurun Destiny O, founder and CEO of D4TECH.
+Always identify as D4AI only. Be clear, helpful, and finish every sentence.`;
 
-const HUMAN_RE =
-  /\b(boy|girl|man|woman|person|people|face|portrait|human|child|kid|baby|lady|gentleman|model|selfie)\b/i;
+type PollinationsPart =
+  | { type: "text"; text: string }
+  | { type: "image_url"; image_url: { url: string } };
 
-/** Pick best free Pollinations model for the prompt. */
-export function pickImageModel(prompt: string): "flux" | "flux-realism" {
-  return HUMAN_RE.test(prompt) ? "flux-realism" : "flux";
-}
+export async function askD4AI(
+  message: string,
+  history: { role: string; content: string }[] = [],
+  signal?: AbortSignal,
+  images?: string[],
+): Promise<string> {
+  // Vision: the newest user turn becomes text + image_url parts
+  let last: { role: string; content: string | PollinationsPart[] } = {
+    role: "user",
+    content: message,
+  };
+  if (images?.length) {
+    const parts: PollinationsPart[] = [{ type: "text", text: message }];
+    for (const img of images.slice(0, 3)) {
+      parts.push({
+        type: "image_url",
+        image_url: { url: img.startsWith("data:") ? img : `data:image/jpeg;base64,${img}` },
+      });
+    }
+    last = { role: "user", content: parts };
+  }
 
-/** Enhance prompt for sharper, cleaner output (no watermark). */
-export function enhanceImagePrompt(prompt: string): string {
-  const base = prompt.trim().replace(/\s+/g, " ").slice(0, 380);
-  if (!base) return "cinematic scene, ultra detailed, 8k";
-  if (/ultra realistic|8k|masterpiece|dslr/i.test(base)) return base;
-  return `${base}, ultra realistic photo, 8k resolution, sharp focus, highly detailed, cinematic lighting, professional photography, natural colors, masterpiece`;
-}
+  const messages = [
+    { role: "system", content: SYSTEM },
+    ...history.slice(-6).map((m) => ({
+      role: m.role === "assistant" ? "assistant" : "user",
+      content: String(m.content || "").slice(0, 800),
+    })),
+    last,
+  ];
 
-/** Build a direct Pollinations image URL. */
-export function pollinationsImageUrl(prompt: string, opts: ImageGenOpts = {}): string {
-  const width = opts.width ?? 1024;
-  const height = opts.height ?? 1280;
-  const model = opts.model ?? pickImageModel(prompt);
-  const enhance = opts.enhance !== false;
-  const seed = opts.seed ?? Math.floor(Math.random() * 1_000_000);
-  const text = enhance ? enhanceImagePrompt(prompt) : prompt.trim().slice(0, 400);
-  const encoded = encodeURIComponent(text || "beautiful scene");
-  const params = new URLSearchParams({
-    width: String(width),
-    height: String(height),
-    model,
-    nologo: "true",
-    enhance: "true",
-    seed: String(seed),
+  try {
+    const res = await fetch("https://text.pollinations.ai/openai", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({ model: "openai", messages }),
+      signal: signal ?? null,
+      cache: "no-store",
+    });
+    const raw = await res.text();
+    if (res.ok && raw) {
+      try {
+        const json = JSON.parse(raw) as {
+          choices?: { message?: { content?: string } }[];
+        };
+        const content = json.choices?.[0]?.message?.content?.trim();
+        if (content) return content;
+      } catch {
+        if (raw.trim() && !raw.trim().startsWith("<")) return raw.trim();
+      }
+    }
+  } catch {
+    /* fallback */
+  }
+
+  const prompt = encodeURIComponent(`You are D4AI. ${message}`);
+  const res2 = await fetch(`https://text.pollinations.ai/${prompt}`, {
+    signal: signal ?? null,
+    cache: "no-store",
   });
-  return `https://image.pollinations.ai/prompt/${encoded}?${params.toString()}`;
-}
-
-/** Detect image-generation intent. */
-export function isImageGenRequest(text: string): boolean {
-  const t = text.toLowerCase().trim();
-  return (
-    /^(generate|create|draw|paint|make|design)\b.*\b(image|picture|photo|art|illustration|wallpaper|poster)\b/i.test(
-      t,
-    ) ||
-    /^(imagine|draw|paint)\b/i.test(t) ||
-    /\b(generate|create)\s+(an?\s+)?(image|picture|photo)\b/i.test(t) ||
-    /^\/imagine\b/i.test(t) ||
-    /\b(ai\s+image|image\s+of)\b/i.test(t)
-  );
-}
-
-/** Extract visual prompt from user text. */
-export function extractImagePrompt(text: string): string {
-  return (
-    text
-      .replace(/^\/imagine\s*/i, "")
-      .replace(
-        /^(please\s+)?(generate|create|draw|paint|make|design)\s+(me\s+)?(an?\s+)?(image|picture|photo|art|illustration|wallpaper|poster)?\s*(of\s+)?/i,
-        "",
-      )
-      .trim() || text.trim()
-  );
+  const t = (await res2.text()).trim();
+  if (t && !t.startsWith("<")) return t;
+  throw new Error("D4AI model unreachable. Check internet and try again.");
 }
