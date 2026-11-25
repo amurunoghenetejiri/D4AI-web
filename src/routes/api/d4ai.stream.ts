@@ -2,17 +2,31 @@
  * Streaming D4AI chat
  * MAIN: Cloudflare @cf/meta/llama-3.3-70b-instruct-fp8-fast
  * FALLBACK: Pollinations / Ollama (existing)
- * Env: CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_API_TOKEN
+ * Env (text): CLOUDFLARE_TEXT_ACCOUNT_ID, CLOUDFLARE_TEXT_API_TOKEN
+ * Fallback: CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_API_TOKEN
  */
 import { createFileRoute } from "@tanstack/react-router";
 
 const CF_MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fast";
 
+/** Account 2 — text generation only */
 function cfAccount() {
-  return (process.env.CLOUDFLARE_ACCOUNT_ID || process.env.CF_ACCOUNT_ID || "").trim();
+  return (
+    process.env.CLOUDFLARE_TEXT_ACCOUNT_ID ||
+    process.env.CF_TEXT_ACCOUNT_ID ||
+    process.env.CLOUDFLARE_ACCOUNT_ID ||
+    process.env.CF_ACCOUNT_ID ||
+    ""
+  ).trim();
 }
 function cfToken() {
-  return (process.env.CLOUDFLARE_API_TOKEN || process.env.CF_API_TOKEN || "").trim();
+  return (
+    process.env.CLOUDFLARE_TEXT_API_TOKEN ||
+    process.env.CF_TEXT_API_TOKEN ||
+    process.env.CLOUDFLARE_API_TOKEN ||
+    process.env.CF_API_TOKEN ||
+    ""
+  ).trim();
 }
 
 function ollamaBase() {

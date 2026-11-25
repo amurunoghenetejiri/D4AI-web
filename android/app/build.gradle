@@ -6,11 +6,12 @@ android {
     namespace "com.d4ai.app"
 
     defaultConfig {
-        applicationId "com.d4ai.assistant"
+        // NEVER share package with D4EXAM (com.d4exam.app / com.d4exam.*)
+        applicationId "com.d4tech.d4ai.standalone"
         minSdkVersion 24
         targetSdkVersion 34
-        versionCode 22
-        versionName "2.2.0"
+        versionCode 23
+        versionName "2.3.0"
     }
 
     buildTypes {

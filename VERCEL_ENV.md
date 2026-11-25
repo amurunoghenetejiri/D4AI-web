@@ -1,12 +1,21 @@
-# Vercel environment variables for D4AI
+# Vercel Environment Variables (2 Cloudflare accounts)
 
-Add these in Vercel → Project → Settings → Environment Variables → Production:
+## Already exists (Account 1) — Image + TTS
+- CLOUDFLARE_ACCOUNT_ID
+- CLOUDFLARE_API_TOKEN
 
-CLOUDFLARE_ACCOUNT_ID = 573ee2afd6e3d5843d23c2f4e61cb925
-CLOUDFLARE_API_TOKEN = (your cfut_ token)
+Do NOT create these again. Edit the existing ones if needed.
 
-Optional (if you later create separate accounts):
-CF_TTS_ACCOUNT_ID, CF_TTS_TOKEN
-CF_STT_ACCOUNT_ID, CF_STT_TOKEN
+## NEW names (Account 2) — Text / chat brain
+Add these as **new** variables (different names so Vercel accepts them):
 
-Then Redeploy.
+| Key | Purpose |
+|-----|---------|
+| `CLOUDFLARE_TEXT_ACCOUNT_ID` | Second Cloudflare account ID (text model) |
+| `CLOUDFLARE_TEXT_API_TOKEN` | Second Cloudflare API token (text model) |
+
+After adding, Redeploy Production.
+
+Code order:
+- Text → CLOUDFLARE_TEXT_* first, then falls back to CLOUDFLARE_*
+- Image / TTS → CLOUDFLARE_ACCOUNT_ID + CLOUDFLARE_API_TOKEN
