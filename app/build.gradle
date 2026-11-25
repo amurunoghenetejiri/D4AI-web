@@ -6,12 +6,11 @@ android {
     namespace "com.d4ai.app"
 
     defaultConfig {
-        // Completely separate from D4EXAM (com.d4exam.app)
         applicationId "com.d4ai.assistant"
         minSdkVersion 24
         targetSdkVersion 34
-        versionCode 21
-        versionName "2.1.0"
+        versionCode 22
+        versionName "2.2.0"
     }
 
     buildTypes {

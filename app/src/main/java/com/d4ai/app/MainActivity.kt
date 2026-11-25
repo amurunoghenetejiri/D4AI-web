@@ -22,8 +22,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 
 /**
- * Standalone D4AI shell — independent of D4EXAM (package com.d4ai.app).
- * Loads https://d4ai-app.vercel.app and exposes DeviceControlBridge as window.D4Device.
+ * Standalone D4AI shell — package com.d4ai.assistant
+ * Loads the web app and exposes DeviceControlBridge as window.D4Device.
  */
 class MainActivity : AppCompatActivity() {
 
@@ -35,17 +35,19 @@ class MainActivity : AppCompatActivity() {
 
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
-    ) { }
+    ) { /* results ignored — features re-check when needed */ }
 
     @SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        window.statusBarColor = Color.parseColor("#050b18")
-        window.navigationBarColor = Color.parseColor("#050b18")
+        try {
+            window.statusBarColor = Color.parseColor("#050b18")
+            window.navigationBarColor = Color.parseColor("#050b18")
+        } catch (_: Exception) { }
 
-        requestRuntimePermissions()
-        maybeRequestSpecialPermissions()
+        // Notifications on open; other runtime perms when needed
+        requestStartupPermissions()
 
         web = WebView(this).apply {
             setBackgroundColor(Color.parseColor("#050b18"))
@@ -72,20 +74,16 @@ class MainActivity : AppCompatActivity() {
 
         web.webChromeClient = object : WebChromeClient() {
             override fun onPermissionRequest(request: PermissionRequest?) {
-                // Grant mic/camera to WebView when user already allowed app-level perms
                 try {
-                    request?.grant(request.resources)
-                } catch (_: Exception) {
-                    request?.deny()
-                }
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        request?.grant(request.resources)
+                    }
+                } catch (_: Exception) { }
             }
         }
 
         web.webViewClient = object : WebViewClient() {
-            override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean = false
-
             override fun onPageFinished(view: WebView?, url: String?) {
-                // Mark native shell so web skips second splash / pending spinner
                 try {
                     view?.evaluateJavascript(
                         "window.__D4_NATIVE__=true;window.D4Android=window.D4Android||{native:true};",
@@ -100,12 +98,20 @@ class MainActivity : AppCompatActivity() {
                 error: WebResourceError?
             ) {
                 if (request?.isForMainFrame == true) {
-                    view?.loadUrl("file:///android_asset/public/offline.html")
+                    try {
+                        view?.loadUrl("file:///android_asset/public/offline.html")
+                    } catch (_: Exception) { }
                 }
             }
         }
 
-        web.loadUrl(APP_URL)
+        try {
+            web.loadUrl(APP_URL)
+        } catch (_: Exception) {
+            try {
+                web.loadUrl("file:///android_asset/public/offline.html")
+            } catch (_: Exception) { }
+        }
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -115,66 +121,124 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    private fun requestRuntimePermissions() {
+    /** Ask notification (+ mic optional) at startup. Heavy perms requested on demand. */
+    private fun requestStartupPermissions() {
         try {
-            val need = mutableListOf<String>()
+            val needed = mutableListOf<String>()
             if (Build.VERSION.SDK_INT >= 33) {
                 if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
-                    != PackageManager.PERMISSION_GRANTED) {
-                    need.add(Manifest.permission.POST_NOTIFICATIONS)
+                    != PackageManager.PERMISSION_GRANTED
+                ) {
+                    needed.add(Manifest.permission.POST_NOTIFICATIONS)
                 }
             }
-            if (need.isNotEmpty()) permissionLauncher.launch(need.toTypedArray())
+            // Mic helps voice note immediately
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+                != PackageManager.PERMISSION_GRANTED
+            ) {
+                needed.add(Manifest.permission.RECORD_AUDIO)
+            }
+            if (needed.isNotEmpty()) {
+                permissionLauncher.launch(needed.toTypedArray())
+            }
         } catch (_: Exception) { }
-    } else {
-            candidates.add(Manifest.permission.READ_EXTERNAL_STORAGE)
-            if (Build.VERSION.SDK_INT <= 28) {
-                candidates.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-            }
-        }
-        if (Build.VERSION.SDK_INT >= 31) {
-            candidates.add(Manifest.permission.BLUETOOTH_ADVERTISE)
-        }
-        for (p in candidates) {
-            try {
-                if (ContextCompat.checkSelfPermission(this, p) != PackageManager.PERMISSION_GRANTED) {
-                    needed.add(p)
-                }
-            } catch (_: Exception) { }
-        }
-        if (needed.isNotEmpty()) {
-            permissionLauncher.launch(needed.toTypedArray())
-        }
     }
 
-    private fun maybeRequestSpecialPermissions() {
+    /** Call from bridge when a feature needs camera/contacts/storage/etc. */
+    fun requestFeaturePermissions(feature: String) {
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                val prefs = getSharedPreferences("d4ai_perms", MODE_PRIVATE)
-                if (!Settings.System.canWrite(this) && !prefs.getBoolean("asked_write_settings", false)) {
-                    prefs.edit().putBoolean("asked_write_settings", true).apply()
-                    startActivity(
-                        Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS).apply {
-                            data = Uri.parse("package:$packageName")
-                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            val needed = mutableListOf<String>()
+            when (feature.lowercase()) {
+                "camera" -> {
+                    needed.add(Manifest.permission.CAMERA)
+                }
+                "mic", "audio", "voice" -> {
+                    needed.add(Manifest.permission.RECORD_AUDIO)
+                }
+                "contacts" -> {
+                    needed.add(Manifest.permission.READ_CONTACTS)
+                }
+                "phone", "call" -> {
+                    needed.add(Manifest.permission.CALL_PHONE)
+                    needed.add(Manifest.permission.READ_PHONE_STATE)
+                }
+                "location" -> {
+                    needed.add(Manifest.permission.ACCESS_FINE_LOCATION)
+                    needed.add(Manifest.permission.ACCESS_COARSE_LOCATION)
+                }
+                "storage", "files" -> {
+                    if (Build.VERSION.SDK_INT >= 33) {
+                        needed.add(Manifest.permission.READ_MEDIA_IMAGES)
+                        needed.add(Manifest.permission.READ_MEDIA_VIDEO)
+                        needed.add(Manifest.permission.READ_MEDIA_AUDIO)
+                    } else {
+                        needed.add(Manifest.permission.READ_EXTERNAL_STORAGE)
+                        if (Build.VERSION.SDK_INT <= 28) {
+                            needed.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                         }
-                    )
+                    }
                 }
-                if (!Settings.canDrawOverlays(this) && !prefs.getBoolean("asked_overlay", false)) {
-                    prefs.edit().putBoolean("asked_overlay", true).apply()
-                    startActivity(
-                        Intent(
-                            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                            Uri.parse("package:$packageName")
-                        ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    )
+                "sms" -> {
+                    needed.add(Manifest.permission.SEND_SMS)
+                    needed.add(Manifest.permission.READ_SMS)
                 }
+                "bluetooth" -> {
+                    if (Build.VERSION.SDK_INT >= 31) {
+                        needed.add(Manifest.permission.BLUETOOTH_CONNECT)
+                        needed.add(Manifest.permission.BLUETOOTH_SCAN)
+                    }
+                }
+                "all" -> {
+                    needed.add(Manifest.permission.CAMERA)
+                    needed.add(Manifest.permission.RECORD_AUDIO)
+                    needed.add(Manifest.permission.READ_CONTACTS)
+                    needed.add(Manifest.permission.CALL_PHONE)
+                    needed.add(Manifest.permission.ACCESS_FINE_LOCATION)
+                    if (Build.VERSION.SDK_INT >= 33) {
+                        needed.add(Manifest.permission.POST_NOTIFICATIONS)
+                        needed.add(Manifest.permission.READ_MEDIA_IMAGES)
+                    }
+                }
+            }
+            val filtered = needed.filter {
+                ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
+            }
+            if (filtered.isNotEmpty()) {
+                permissionLauncher.launch(filtered.toTypedArray())
+            }
+        } catch (_: Exception) { }
+    }
+
+    fun openOverlaySettings() {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
+                startActivity(
+                    Intent(
+                        Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                        Uri.parse("package:$packageName")
+                    ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                )
+            }
+        } catch (_: Exception) { }
+    }
+
+    fun openWriteSettings() {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.System.canWrite(this)) {
+                startActivity(
+                    Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS).apply {
+                        data = Uri.parse("package:$packageName")
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    }
+                )
             }
         } catch (_: Exception) { }
     }
 
     override fun onDestroy() {
-        try { web.destroy() } catch (_: Exception) { }
+        try {
+            if (::web.isInitialized) web.destroy()
+        } catch (_: Exception) { }
         super.onDestroy()
     }
 }

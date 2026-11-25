@@ -12,41 +12,62 @@ import android.widget.ImageView
 import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
 
-/** Single native D4AI splash — then MainActivity (web skips its own splash). */
+/** Native D4AI splash → MainActivity */
 class SplashActivity : AppCompatActivity() {
 
     private val handler = Handler(Looper.getMainLooper())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_splash)
+        try {
+            setContentView(R.layout.activity_splash)
+        } catch (_: Exception) {
+            // Layout missing — go straight to main
+            startActivity(Intent(this, MainActivity::class.java))
+            finish()
+            return
+        }
 
-        val logo = findViewById<ImageView>(R.id.logo)
-        val ringOuter = findViewById<View>(R.id.ringOuter)
-        val ringMid = findViewById<View>(R.id.ringMid)
-        val progress = findViewById<ProgressBar>(R.id.progress)
+        try {
+            val logo = findViewById<ImageView>(R.id.logo)
+            val ringOuter = findViewById<View>(R.id.ringOuter)
+            val ringMid = findViewById<View>(R.id.ringMid)
+            val progress = findViewById<ProgressBar>(R.id.progress)
 
-        ObjectAnimator.ofFloat(logo, View.SCALE_X, 1f, 1.06f, 1f).apply {
-            duration = 1800; repeatCount = ValueAnimator.INFINITE
-            interpolator = AccelerateDecelerateInterpolator(); start()
-        }
-        ObjectAnimator.ofFloat(logo, View.SCALE_Y, 1f, 1.06f, 1f).apply {
-            duration = 1800; repeatCount = ValueAnimator.INFINITE
-            interpolator = AccelerateDecelerateInterpolator(); start()
-        }
-        ObjectAnimator.ofFloat(ringOuter, View.ALPHA, 0.35f, 0.85f, 0.35f).apply {
-            duration = 2000; repeatCount = ValueAnimator.INFINITE; start()
-        }
-        ObjectAnimator.ofFloat(ringMid, View.ALPHA, 0.5f, 1f, 0.5f).apply {
-            duration = 1600; repeatCount = ValueAnimator.INFINITE; start()
-        }
-        ObjectAnimator.ofInt(progress, "progress", 8, 100).apply {
-            duration = 1600; interpolator = AccelerateDecelerateInterpolator(); start()
-        }
+            logo?.let {
+                ObjectAnimator.ofFloat(it, View.SCALE_X, 1f, 1.06f, 1f).apply {
+                    duration = 1800; repeatCount = ValueAnimator.INFINITE
+                    interpolator = AccelerateDecelerateInterpolator(); start()
+                }
+                ObjectAnimator.ofFloat(it, View.SCALE_Y, 1f, 1.06f, 1f).apply {
+                    duration = 1800; repeatCount = ValueAnimator.INFINITE
+                    interpolator = AccelerateDecelerateInterpolator(); start()
+                }
+            }
+            ringOuter?.let {
+                ObjectAnimator.ofFloat(it, View.ALPHA, 0.35f, 0.85f, 0.35f).apply {
+                    duration = 2000; repeatCount = ValueAnimator.INFINITE; start()
+                }
+            }
+            ringMid?.let {
+                ObjectAnimator.ofFloat(it, View.ALPHA, 0.5f, 1f, 0.5f).apply {
+                    duration = 1600; repeatCount = ValueAnimator.INFINITE; start()
+                }
+            }
+            progress?.let {
+                ObjectAnimator.ofInt(it, "progress", 8, 100).apply {
+                    duration = 1600
+                    interpolator = AccelerateDecelerateInterpolator()
+                    start()
+                }
+            }
+        } catch (_: Exception) { }
 
         handler.postDelayed({
-            startActivity(Intent(this, MainActivity::class.java))
-            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+            try {
+                startActivity(Intent(this, MainActivity::class.java))
+                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+            } catch (_: Exception) { }
             finish()
         }, 1700)
     }

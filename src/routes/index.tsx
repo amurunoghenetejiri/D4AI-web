@@ -3080,16 +3080,37 @@ function D4AiPage() {
             <p className={cn("mt-1 font-mono text-sm", dark ? "text-cyan-300/80" : "text-blue-600")}>
               {String(Math.floor(voiceSecs / 60)).padStart(2, "0")}:{String(voiceSecs % 60).padStart(2, "0")}
             </p>
-            <div
-              className={cn(
-                "mt-5 max-h-28 w-full max-w-sm overflow-y-auto rounded-2xl px-4 py-3 text-sm",
-                dark ? "bg-[#0e2038] text-slate-200" : "bg-white text-slate-800 shadow",
-              )}
-            >
-              {callMode
-                ? (ttsSpeaking ? "Listening after I finish…" : "Listening…")
-                : (voiceText || (ttsSpeaking ? "…" : "Speak clearly…"))}
-            </div>
+            {/* Editable live transcript — tap/type to fix before Send */}
+            {callMode ? (
+              <div
+                className={cn(
+                  "mt-5 max-h-28 w-full max-w-sm overflow-y-auto rounded-2xl px-4 py-3 text-sm",
+                  dark ? "bg-[#0e2038] text-slate-200" : "bg-white text-slate-800 shadow",
+                )}
+              >
+                {ttsSpeaking ? "Listening after I finish…" : "Listening…"}
+              </div>
+            ) : (
+              <textarea
+                value={voiceText}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setVoiceText(v);
+                  finalTranscriptRef.current = v;
+                }}
+                onFocus={() => {
+                  try { recognitionRef.current?.stop(); } catch {}
+                }}
+                placeholder="Speak or type here — edit before Send"
+                rows={3}
+                className={cn(
+                  "mt-5 max-h-32 w-full max-w-sm resize-none rounded-2xl px-4 py-3 text-sm outline-none ring-1",
+                  dark
+                    ? "bg-[#0e2038] text-slate-100 ring-cyan-400/25 placeholder:text-slate-500"
+                    : "bg-white text-slate-800 ring-slate-200 shadow placeholder:text-slate-400",
+                )}
+              />
+            )}
           </div>
 
           {/* Pause only in call mode (centered); Send only in voice-note mode */}
